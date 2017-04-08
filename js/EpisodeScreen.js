@@ -18,7 +18,9 @@ import {
   TouchableOpacity,
   Button,
   Text,
-  Icon
+  Icon,
+  Overlay,
+  Divider
 } from '@shoutem/ui';
 
 import axios from 'axios';
@@ -40,7 +42,8 @@ export default class EpisodeScreen extends React.Component {
       accessToken: '',
       page: 1,
       programs: [],
-      isLoading: false
+      isLoading: false,
+      workId: ''
     };
   }
   componentDidMount() {
@@ -78,7 +81,17 @@ export default class EpisodeScreen extends React.Component {
         console.error(error);
       });
   }
-  fetchProgram({ accessToken, page, isRefresh }) {
+  fetchProgram({ accessToken, page, isRefresh, workId }) {
+    let params = {
+      filter_unwatched: true,
+      sort_started_at: 'desc',
+      page: page
+    };
+
+    if (workId) {
+      params.filter_work_ids = workId;
+    }
+
     axios({
       url: `${ANNICT_API_BASE_URL}/v1/me/programs`,
       method: 'GET',
@@ -86,11 +99,7 @@ export default class EpisodeScreen extends React.Component {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       },
-      params: {
-        filter_unwatched: true,
-        sort_started_at: 'desc',
-        page: page
-      }
+      params: params
     })
       .then(response => {
         if (isRefresh) {
@@ -114,8 +123,24 @@ export default class EpisodeScreen extends React.Component {
     this.setState({ page: page });
     this.fetchProgram({
       accessToken: this.state.accessToken,
-      page: page
+      page: page,
+      workId: this.state.workId
     });
+  }
+  filterWorks(workId) {
+    this.setState({
+      page: 1,
+      workId: workId
+    });
+    this.fetchProgram({
+      accessToken: this.state.accessToken,
+      page: 1,
+      workId: workId,
+      isRefresh: true
+    });
+  }
+  resetFilter() {
+    this.filterWorks('');
   }
 
   reload() {
@@ -136,9 +161,29 @@ export default class EpisodeScreen extends React.Component {
     const image = work.images && work.images.facebook.og_image_url
       ? { uri: work.images.facebook.og_image_url }
       : { uri: work.images.recommended_url };
+    let filterOverlay;
+    if (!this.state.workId) {
+      filterOverlay = (
+        <TouchableOpacity
+          onPress={() => {
+            this.filterWorks.bind(this)(work.id);
+          }}
+        >
+          <Overlay
+            styleName="solid-bright fill-parent rounded-small"
+            style={{ backgroundColor: '#F75D75' }}
+          >
+            <Icon name="search" />
+          </Overlay>
+        </TouchableOpacity>
+      );
+    }
     return (
       <Row styleName="small">
-        <Image styleName="small rounded-corners" source={image} />
+
+        <Image styleName="small rounded-corners" source={image}>
+          {filterOverlay}
+        </Image>
         <View styleName="vertical stretch sm-gutter-top">
           <Caption styleName="">{work.title}</Caption>
           <Caption styleName="bold">
@@ -158,8 +203,28 @@ export default class EpisodeScreen extends React.Component {
   }
 
   render() {
+    let removeFilterBar;
+    if (this.state.workId) {
+      removeFilterBar = (
+        <Divider styleName="section-header">
+          <View
+            styleName="fill-parent horizontal h-center v-center"
+            style={{ backgroundColor: '#272822' }}
+          >
+            <Button styleName="clear" onPress={this.resetFilter.bind(this)}>
+              <View styleName="horizontal">
+                <Caption styleName="bold" style={{ color: '#f8f8f8' }}>
+                  Reset filter ☓
+                </Caption>
+              </View>
+            </Button>
+          </View>
+        </Divider>
+      );
+    }
     return (
       <Screen>
+        {removeFilterBar}
         <ListView
           data={this.state.programs}
           renderRow={this.renderRow.bind(this)}
