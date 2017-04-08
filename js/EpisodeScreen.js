@@ -78,7 +78,7 @@ export default class EpisodeScreen extends React.Component {
         console.error(error);
       });
   }
-  fetchProgram({ accessToken, page }) {
+  fetchProgram({ accessToken, page, isRefresh }) {
     axios({
       url: `${ANNICT_API_BASE_URL}/v1/me/programs`,
       method: 'GET',
@@ -93,9 +93,17 @@ export default class EpisodeScreen extends React.Component {
       }
     })
       .then(response => {
-        this.setState({
-          programs: this.state.programs.concat(response.data.programs)
-        });
+        if (isRefresh) {
+          this.setState({
+            programs: response.data.programs,
+            isLoading: false
+          });
+        } else {
+          this.setState({
+            programs: this.state.programs.concat(response.data.programs),
+            isLoading: false
+          });
+        }
       })
       .catch(err => {
         console.error(err);
@@ -107,6 +115,18 @@ export default class EpisodeScreen extends React.Component {
     this.fetchProgram({
       accessToken: this.state.accessToken,
       page: page
+    });
+  }
+
+  reload() {
+    this.setState({
+      page: 1,
+      isLoading: true
+    });
+    this.fetchProgram({
+      accessToken: this.state.accessToken,
+      page: 1,
+      isRefresh: true
     });
   }
 
@@ -144,6 +164,7 @@ export default class EpisodeScreen extends React.Component {
           data={this.state.programs}
           renderRow={this.renderRow.bind(this)}
           onLoadMore={this.fetchNext.bind(this)}
+          onRefresh={this.reload.bind(this)}
           loading={this.state.isLoading}
         />
       </Screen>
