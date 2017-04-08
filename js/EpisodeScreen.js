@@ -51,6 +51,33 @@ export default class EpisodeScreen extends React.Component {
       page: this.state.page
     });
   }
+  markWatched(episodeId, rowId) {
+    rowId = parseInt(rowId, 10);
+
+    axios({
+      url: `${ANNICT_API_BASE_URL}/v1/me/records`,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.state.accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      data: {
+        episode_id: episodeId
+      }
+    })
+      .then(response => {
+        // チェックを付けたのをListViewから消す
+        let programs = this.state.programs.slice();
+        programs.splice(rowId, 1);
+
+        this.setState({
+          programs: programs
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
   fetchProgram({ accessToken, page }) {
     axios({
       url: `${ANNICT_API_BASE_URL}/v1/me/programs`,
@@ -83,7 +110,7 @@ export default class EpisodeScreen extends React.Component {
     });
   }
 
-  renderRow(program) {
+  renderRow(program, sectionId, rowId) {
     const work = program.work;
     const episode = program.episode;
     const image = work.images && work.images.facebook.og_image_url
@@ -98,7 +125,12 @@ export default class EpisodeScreen extends React.Component {
             {episode.number_text} {episode.title}
           </Caption>
         </View>
-        <Button styleName="clear">
+        <Button
+          styleName="clear"
+          onPress={() => {
+            this.markWatched.bind(this)(episode.id, rowId);
+          }}
+        >
           <Icon name="edit" />
         </Button>
       </Row>
