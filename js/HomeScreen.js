@@ -51,6 +51,9 @@ export default class HomeScreen extends React.Component {
       Keychain.getGenericPassword()
         .then(credentials => {
           const token = credentials.password;
+          if (!token) {
+            return new Promise.reject('no token found');
+          }
           this.navigateMainScreen(token);
         })
         .catch(err => {
