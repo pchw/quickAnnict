@@ -1,7 +1,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { InteractionManager } from 'react-native';
+import { InteractionManager, Modal, Switch } from 'react-native';
 
 import {
   NavigationBar,
@@ -20,15 +20,20 @@ import {
   Text,
   Icon,
   Overlay,
-  Divider
+  Divider,
+  Lightbox,
+  TextInput
 } from '@shoutem/ui';
 
 import axios from 'axios';
+import _ from 'lodash';
 
 import config from '../config';
 const {
   ANNICT_API_BASE_URL
 } = config;
+
+import RecordModalScreen from './RecordModalScreen';
 
 export default class EpisodeScreen extends React.Component {
   static navigationOptions = {
@@ -43,7 +48,12 @@ export default class EpisodeScreen extends React.Component {
       page: 1,
       programs: [],
       isLoading: false,
-      workId: ''
+      workId: '',
+      isVisiblePopup: false,
+      isShareOnTwitter: false,
+      isShareOnFacebook: false,
+      comment: '',
+      rating: 0
     };
   }
   componentDidMount() {
@@ -54,8 +64,25 @@ export default class EpisodeScreen extends React.Component {
       page: this.state.page
     });
   }
-  markWatched(episodeId, rowId) {
+  markWatched(
+    { episodeId, rowId, comment, rating, isShareOnTwitter, isShareOnFacebook }
+  ) {
     rowId = parseInt(rowId, 10);
+
+    let postData = {};
+    postData.episode_id = episodeId;
+    if (rating) {
+      postData.rating = rating;
+    }
+    if (comment) {
+      postData.comment = comment;
+    }
+    if (isShareOnTwitter) {
+      postData.share_twitter = isShareOnTwitter;
+    }
+    if (isShareOnFacebook) {
+      postData.share_facebook = isShareOnFacebook;
+    }
 
     axios({
       url: `${ANNICT_API_BASE_URL}/v1/me/records`,
@@ -64,9 +91,7 @@ export default class EpisodeScreen extends React.Component {
         Authorization: `Bearer ${this.state.accessToken}`,
         'Content-Type': 'application/json'
       },
-      data: {
-        episode_id: episodeId
-      }
+      data: postData
     })
       .then(response => {
         // チェックを付けたのをListViewから消す
@@ -155,6 +180,12 @@ export default class EpisodeScreen extends React.Component {
     });
   }
 
+  setPopupVisible(isVisible) {
+    this.setState({
+      isVisiblePopup: isVisible
+    });
+  }
+
   renderRow(program, sectionId, rowId) {
     const work = program.work;
     const episode = program.episode;
@@ -193,7 +224,17 @@ export default class EpisodeScreen extends React.Component {
         <Button
           styleName="clear"
           onPress={() => {
-            this.markWatched.bind(this)(episode.id, rowId);
+            this.markWatched.bind(this)({
+              episodeId: episode.id,
+              rowId: rowId
+            });
+          }}
+          onLongPress={() => {
+            this.setState({
+              modalEpisodeId: episode.id,
+              modalRowId: rowId
+            });
+            this.setPopupVisible.bind(this)(true);
           }}
         >
           <Icon name="edit" />
@@ -222,8 +263,35 @@ export default class EpisodeScreen extends React.Component {
         </Divider>
       );
     }
+
+    const modalView = this.state.isVisiblePopup
+      ? <RecordModalScreen
+          onClose={() => {
+            this.setPopupVisible.bind(this)(false);
+          }}
+          onSubmit={param => {
+            const {
+              rating,
+              comment,
+              isShareOnTwitter,
+              isShareOnFacebook
+            } = param;
+            this.markWatched({
+              episodeId: this.state.modalEpisodeId,
+              rowId: this.state.modalRowId,
+              rating: rating,
+              comment: comment,
+              isShareOnTwitter: isShareOnTwitter,
+              isShareOnFacebook: isShareOnFacebook
+            });
+            this.setPopupVisible(false);
+          }}
+        />
+      : void 0;
+
     return (
       <Screen>
+        {modalView}
         {removeFilterBar}
         <ListView
           data={this.state.programs}
