@@ -121,6 +121,7 @@ export default class RecordModalScreen extends React.Component {
               borderWidth: 1,
               borderRadius: 3
             }}
+            onChangeText={(comment)=>{this.setState({comment: comment});}}
           />
           <Button styleName="md-gutter-top" onPress={this.onSubmit.bind(this)}>
             <Text>Record</Text>
