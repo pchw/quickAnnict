@@ -52,19 +52,14 @@ export default class HomeScreen extends React.Component {
         .then(credentials => {
           const token = credentials.password;
           if (!token) {
-            return new Promise.reject('no token found');
+            return this.navigateOAuthScreen();
           }
           this.navigateMainScreen(token);
         })
         .catch(err => {
           console.error(err);
           // KeyChainに情報がないのでOAuth認証へ進む
-          this.props.navigation.dispatch(
-            NavigationActions.reset({
-              index: 0,
-              actions: [NavigationActions.navigate({ routeName: 'Oauth' })]
-            })
-          );
+          this.navigateOAuthScreen();
         });
     }
   }
@@ -93,6 +88,15 @@ export default class HomeScreen extends React.Component {
             }
           })
         ]
+      })
+    );
+  }
+
+  navigateOAuthScreen(){
+    this.props.navigation.dispatch(
+      NavigationActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: 'Oauth' })]
       })
     );
   }
