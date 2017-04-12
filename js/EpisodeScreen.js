@@ -78,10 +78,10 @@ export default class EpisodeScreen extends React.Component {
       postData.comment = comment;
     }
     if (isShareOnTwitter) {
-      postData.share_twitter = isShareOnTwitter;
+      postData.share_twitter = 'true';
     }
     if (isShareOnFacebook) {
-      postData.share_facebook = isShareOnFacebook;
+      postData.share_facebook = 'true';
     }
 
     axios({
