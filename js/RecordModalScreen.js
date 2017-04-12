@@ -1,7 +1,12 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { InteractionManager, Modal, Switch } from 'react-native';
+import {
+  InteractionManager,
+  Modal,
+  Switch,
+  KeyboardAvoidingView
+} from 'react-native';
 
 import {
   NavigationBar,
@@ -88,45 +93,52 @@ export default class RecordModalScreen extends React.Component {
         visible={true}
         style={{ alignItems: 'flex-start' }}
       >
-        <View style={{ flex: 1, padding: 22 }}>
-          <Text style={{ alignSelf: 'center' }}>Record details</Text>
-          <Button
-            styleName="clear"
-            style={{ alignSelf: 'flex-end' }}
-            onPress={this.props.onClose}
-          >
-            <Icon name="close" />
-          </Button>
-          <Caption>Rating:</Caption>
-          <View styleName="horizontal sm-gutter-bottom">
-            {ratingButtons}
+        <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+          <View style={{ flex: 1, padding: 22 }}>
+            <Text style={{ alignSelf: 'center' }}>Record details</Text>
+            <Button
+              styleName="clear"
+              style={{ alignSelf: 'flex-end' }}
+              onPress={this.props.onClose}
+            >
+              <Icon name="close" />
+            </Button>
+            <Caption>Rating:</Caption>
+            <View styleName="horizontal sm-gutter-bottom">
+              {ratingButtons}
+            </View>
+            <Caption>Share on twitter:</Caption>
+            <Switch
+              onValueChange={val => this.setState({ isShareOnTwitter: val })}
+              value={this.state.isShareOnTwitter}
+            />
+            <Caption>Share on facebook:</Caption>
+            <Switch
+              onValueChange={val => this.setState({ isShareOnFacebook: val })}
+              value={this.state.isShareOnFacebook}
+            />
+            <Caption>Comment:</Caption>
+            <TextInput
+              multiline={true}
+              style={{
+                flex: 9,
+                borderColor: '#000000',
+                borderStyle: 'solid',
+                borderWidth: 1,
+                borderRadius: 3
+              }}
+              onChangeText={comment => {
+                this.setState({ comment: comment });
+              }}
+            />
+            <Button
+              styleName="md-gutter-top"
+              onPress={this.onSubmit.bind(this)}
+            >
+              <Text>Record</Text>
+            </Button>
           </View>
-          <Caption>Share on twitter:</Caption>
-          <Switch
-            onValueChange={val => this.setState({ isShareOnTwitter: val })}
-            value={this.state.isShareOnTwitter}
-          />
-          <Caption>Share on facebook:</Caption>
-          <Switch
-            onValueChange={val => this.setState({ isShareOnFacebook: val })}
-            value={this.state.isShareOnFacebook}
-          />
-          <Caption>Comment:</Caption>
-          <TextInput
-            multiline={true}
-            style={{
-              flex: 9,
-              borderColor: '#000000',
-              borderStyle: 'solid',
-              borderWidth: 1,
-              borderRadius: 3
-            }}
-            onChangeText={(comment)=>{this.setState({comment: comment});}}
-          />
-          <Button styleName="md-gutter-top" onPress={this.onSubmit.bind(this)}>
-            <Text>Record</Text>
-          </Button>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     );
   }
