@@ -234,7 +234,7 @@ export default class EpisodeScreen extends React.Component {
               modalEpisodeId: episode.id,
               modalRowId: rowId,
               modalTitle: work.title,
-              modalEpisodeTitle: `${episode.number_text} ${episode.title}`
+              modalEpisodeTitle: `${episode.number_text} ${episode.title || ''}`
             });
             this.setPopupVisible.bind(this)(true);
           }}
