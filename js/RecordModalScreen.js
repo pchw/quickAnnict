@@ -9,24 +9,13 @@ import {
 } from 'react-native';
 
 import {
-  NavigationBar,
-  Tile,
   Title,
-  Image,
   Caption,
-  ListView,
-  Row,
   Subtitle,
   View,
-  Screen,
-  DropDownMenu,
-  TouchableOpacity,
   Button,
   Text,
   Icon,
-  Overlay,
-  Divider,
-  Lightbox,
   TextInput
 } from '@shoutem/ui';
 
