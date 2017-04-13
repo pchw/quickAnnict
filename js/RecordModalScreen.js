@@ -103,6 +103,10 @@ export default class RecordModalScreen extends React.Component {
             >
               <Icon name="close" />
             </Button>
+            <Title>{this.props.title}</Title>
+            <Subtitle style={{ marginBottom: 10 }}>
+              {this.props.episodeTitle}
+            </Subtitle>
             <Caption>Rating:</Caption>
             <View styleName="horizontal sm-gutter-bottom">
               {ratingButtons}

@@ -232,7 +232,9 @@ export default class EpisodeScreen extends React.Component {
           onLongPress={() => {
             this.setState({
               modalEpisodeId: episode.id,
-              modalRowId: rowId
+              modalRowId: rowId,
+              modalTitle: work.title,
+              modalEpisodeTitle: `${episode.number_text} ${episode.title}`
             });
             this.setPopupVisible.bind(this)(true);
           }}
@@ -266,6 +268,8 @@ export default class EpisodeScreen extends React.Component {
 
     const modalView = this.state.isVisiblePopup
       ? <RecordModalScreen
+          title={this.state.modalTitle}
+          episodeTitle={this.state.modalEpisodeTitle}
           onClose={() => {
             this.setPopupVisible.bind(this)(false);
           }}
