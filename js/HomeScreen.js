@@ -17,6 +17,7 @@ const {
 } = config;
 
 import * as Keychain from 'react-native-keychain';
+import OAuthScreen from './OAuthScreen';
 
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
@@ -26,7 +27,9 @@ export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      isShowOAuth: false
+    };
   }
   componentDidMount() {
     const { params } = this.props.navigation.state;
@@ -34,6 +37,7 @@ export default class HomeScreen extends React.Component {
     // OAuth認証から帰ってきたらparams.codeが取れる
     const code = params && params.code;
     if (code) {
+      this.setState({ isShowOAuth: false });
       this.getToken(code).then(response => {
         const token = response.data.access_token;
 
@@ -54,7 +58,7 @@ export default class HomeScreen extends React.Component {
           if (!token) {
             return this.navigateOAuthScreen();
           }
-          this.navigateMainScreen(token);
+          return this.navigateMainScreen(token);
         })
         .catch(err => {
           console.error(err);
@@ -92,18 +96,15 @@ export default class HomeScreen extends React.Component {
     );
   }
 
-  navigateOAuthScreen(){
-    this.props.navigation.dispatch(
-      NavigationActions.reset({
-        index: 0,
-        actions: [NavigationActions.navigate({ routeName: 'Oauth' })]
-      })
-    );
+  navigateOAuthScreen() {
+    this.setState({ isShowOAuth: true });
   }
 
   render() {
+    const modalView = this.state.isShowOAuth ? <OAuthScreen /> : void 0;
     return (
       <Screen>
+        {modalView}
         <View styleName="fill-parent vertical v-center">
           <Spinner size="large" />
         </View>
