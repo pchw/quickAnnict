@@ -27,6 +27,7 @@ import {
 
 import axios from 'axios';
 import _ from 'lodash';
+import moment from 'moment';
 
 import config from '../config';
 const { ANNICT_API_BASE_URL } = config;
@@ -113,7 +114,8 @@ export default class EpisodeScreen extends React.Component {
     let params = {
       filter_unwatched: true,
       sort_started_at: 'desc',
-      page: page
+      page: page,
+      filter_started_at_lt: moment().format('YYYY/MM/DD HH:mm')
     };
 
     if (workId) {
