@@ -148,7 +148,10 @@ export default class EpisodeScreen extends React.Component {
   }
   fetchNext() {
     const page = this.state.page + 1;
-    this.setState({ page: page });
+    this.setState({
+      page: page,
+      isLoading: true
+    });
     this.fetchProgram({
       accessToken: this.state.accessToken,
       page: page,
