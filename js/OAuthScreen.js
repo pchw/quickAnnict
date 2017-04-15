@@ -26,7 +26,8 @@ export default class OAuthScreen extends React.Component {
     };
 
     this.state = {
-      uri: `${ANNICT_OAUTH_AUTHORIZE_URL}?${qs.stringify(param)}`
+      uri: `${ANNICT_OAUTH_AUTHORIZE_URL}?${qs.stringify(param)}`,
+      isShowWebView: false
     };
   }
 
