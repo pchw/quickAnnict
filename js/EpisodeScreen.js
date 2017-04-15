@@ -29,9 +29,7 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import config from '../config';
-const {
-  ANNICT_API_BASE_URL
-} = config;
+const { ANNICT_API_BASE_URL } = config;
 
 import RecordModalScreen from './RecordModalScreen';
 
@@ -64,9 +62,14 @@ export default class EpisodeScreen extends React.Component {
       page: this.state.page
     });
   }
-  markWatched(
-    { episodeId, rowId, comment, rating, isShareOnTwitter, isShareOnFacebook }
-  ) {
+  markWatched({
+    episodeId,
+    rowId,
+    comment,
+    rating,
+    isShareOnTwitter,
+    isShareOnFacebook
+  }) {
     rowId = parseInt(rowId, 10);
 
     let postData = {};

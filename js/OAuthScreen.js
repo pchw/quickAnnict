@@ -8,11 +8,7 @@ import { Text, View, Button } from '@shoutem/ui';
 import qs from 'qs';
 import config from '../config';
 
-const {
-  OAUTH_CLIENT_ID,
-  ANNICT_OAUTH_AUTHORIZE_URL,
-  REDIRECT_URI
-} = config;
+const { OAUTH_CLIENT_ID, ANNICT_OAUTH_AUTHORIZE_URL, REDIRECT_URI } = config;
 
 export default class OAuthScreen extends React.Component {
   static navigationOptions = {
@@ -53,7 +49,9 @@ export default class OAuthScreen extends React.Component {
               backgroundColor: '#F75D75',
               borderColor: '#F75D75'
             }}
-            onPress={()=>{this.setState({isShowWebView: true})}}
+            onPress={() => {
+              this.setState({ isShowWebView: true });
+            }}
           >
             <Text>ログインする </Text>
           </Button>
