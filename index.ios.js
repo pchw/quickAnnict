@@ -13,7 +13,7 @@ import { StackNavigator } from 'react-navigation';
 const quickAnnict = StackNavigator({
   Home: {
     screen: require('./js/HomeScreen').default,
-    path: 'callback'
+    path: /^callback/
   },
   Episode: {
     screen: require('./js/EpisodeScreen').default
@@ -22,7 +22,9 @@ const quickAnnict = StackNavigator({
     screen: require('./js/OAuthScreen').default
   },
 }, {
-  URIPrefix: 'qani://'
+  containerConfig: {
+    URIPrefix: 'qani://'
+  }
 });
 
 
