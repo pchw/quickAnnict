@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import { InteractionManager, Modal, Switch } from 'react-native';
+import { NavigationActions } from 'react-navigation';
 
 import {
   NavigationBar,
@@ -29,6 +30,8 @@ import axios from 'axios';
 import _ from 'lodash';
 import moment from 'moment';
 
+import * as Keychain from 'react-native-keychain';
+
 import config from '../config';
 const { ANNICT_API_BASE_URL } = config;
 
@@ -55,12 +58,28 @@ export default class EpisodeScreen extends React.Component {
       rating: 0
     };
   }
+
   componentDidMount() {
     const { params } = this.props.navigation.state;
+
     this.setState({ accessToken: params.accessToken });
     this.fetchProgram({
       accessToken: params.accessToken,
       page: this.state.page
+    });
+  }
+  logout() {
+    Keychain.resetGenericPassword().then(() => {
+      this.props.navigation.dispatch(
+        NavigationActions.reset({
+          index: 0,
+          actions: [
+            NavigationActions.navigate({
+              routeName: 'Home'
+            })
+          ]
+        })
+      );
     });
   }
   markWatched({
