@@ -157,7 +157,6 @@ export default class EpisodeScreen extends React.Component {
       params: params
     })
       .then(response => {
-        console.log(response.data.programs.length);
         if (isRefresh) {
           this.setState({
             programs: response.data.programs,
