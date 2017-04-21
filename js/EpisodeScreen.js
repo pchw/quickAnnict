@@ -50,6 +50,7 @@ export default class EpisodeScreen extends React.Component {
       page: 1,
       programs: [],
       isLoading: false,
+      isEnd: false,
       workId: '',
       isVisiblePopup: false,
       isShareOnTwitter: false,
@@ -137,6 +138,11 @@ export default class EpisodeScreen extends React.Component {
       filter_started_at_lt: moment().format('YYYY/MM/DD HH:mm')
     };
 
+    // 画面リフレッシュではなくて，既に終端に達している場合は何もしない
+    if (!isRefresh && this.state.isEnd) {
+      return;
+    }
+
     if (workId) {
       params.filter_work_ids = workId;
     }
@@ -151,15 +157,18 @@ export default class EpisodeScreen extends React.Component {
       params: params
     })
       .then(response => {
+        console.log(response.data.programs.length);
         if (isRefresh) {
           this.setState({
             programs: response.data.programs,
-            isLoading: false
+            isLoading: false,
+            isEnd: response.data.programs.length === 0
           });
         } else {
           this.setState({
             programs: this.state.programs.concat(response.data.programs),
-            isLoading: false
+            isLoading: false,
+            isEnd: response.data.programs.length === 0
           });
         }
       })
@@ -198,11 +207,13 @@ export default class EpisodeScreen extends React.Component {
   reload() {
     this.setState({
       page: 1,
-      isLoading: true
+      isLoading: true,
+      isEnd: false
     });
     this.fetchProgram({
       accessToken: this.state.accessToken,
       page: 1,
+      workId: this.state.workId,
       isRefresh: true
     });
   }
@@ -329,7 +340,7 @@ export default class EpisodeScreen extends React.Component {
           renderRow={this.renderRow.bind(this)}
           onLoadMore={this.fetchNext.bind(this)}
           onRefresh={this.reload.bind(this)}
-          loading={this.state.isLoading}
+          loading={this.state.isLoading && !this.state.isEnd}
         />
       </Screen>
     );
