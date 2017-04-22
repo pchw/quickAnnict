@@ -1,7 +1,12 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { InteractionManager, Modal, Switch } from 'react-native';
+import {
+  InteractionManager,
+  Modal,
+  Switch,
+  Button as RNButton
+} from 'react-native';
 import { NavigationActions } from 'react-navigation';
 
 import {
@@ -34,6 +39,7 @@ import * as Keychain from 'react-native-keychain';
 
 import config from '../config';
 const { ANNICT_API_BASE_URL } = config;
+const ANNICT_COLOR = '#F75D75';
 
 import RecordModalScreen from './RecordModalScreen';
 
@@ -63,7 +69,10 @@ export default class EpisodeScreen extends React.Component {
   componentDidMount() {
     const { params } = this.props.navigation.state;
 
-    this.setState({ accessToken: params.accessToken });
+    this.setState({
+      accessToken: params.accessToken,
+      isLoading: true
+    });
     this.fetchProgram({
       accessToken: params.accessToken,
       page: this.state.page
@@ -282,6 +291,38 @@ export default class EpisodeScreen extends React.Component {
     );
   }
 
+  renderHeader() {
+    let views = [
+      <View styleName="horizontal h-center">
+        <Title>表示できるアニメがありません</Title>
+      </View>
+    ];
+
+    // 絞込が指定されている場合は絞込解除のボタンを出す
+    if (this.state.workId) {
+      views.push(
+        <RNButton
+          onPress={this.resetFilter.bind(this)}
+          title="絞込を解除する"
+          color={ANNICT_COLOR}
+        />
+      );
+    } else {
+      views.push(
+        <View styleName="horizontal h-center">
+          <Title>次の放送日をお待ち下さい</Title>
+        </View>
+      );
+    }
+    if (this.state.programs.length === 0 && !this.state.isLoading) {
+      return (
+        <View>
+          {views}
+        </View>
+      );
+    }
+  }
+
   render() {
     let removeFilterBar;
     if (this.state.workId) {
@@ -291,13 +332,11 @@ export default class EpisodeScreen extends React.Component {
             styleName="fill-parent horizontal h-center v-center"
             style={{ backgroundColor: '#272822' }}
           >
-            <Button styleName="clear" onPress={this.resetFilter.bind(this)}>
-              <View styleName="horizontal">
-                <Caption styleName="bold" style={{ color: '#f8f8f8' }}>
-                  Reset filter ☓
-                </Caption>
-              </View>
-            </Button>
+            <RNButton
+              onPress={this.resetFilter.bind(this)}
+              title="Reset filter ☓"
+              color={ANNICT_COLOR}
+            />
           </View>
         </Divider>
       );
@@ -340,6 +379,7 @@ export default class EpisodeScreen extends React.Component {
           onLoadMore={this.fetchNext.bind(this)}
           onRefresh={this.reload.bind(this)}
           loading={this.state.isLoading && !this.state.isEnd}
+          renderHeader={this.renderHeader.bind(this)}
         />
       </Screen>
     );
