@@ -5,7 +5,8 @@ import {
   InteractionManager,
   Modal,
   Switch,
-  Button as RNButton
+  Button as RNButton,
+  AsyncStorage
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 
@@ -40,8 +41,14 @@ import * as Keychain from 'react-native-keychain';
 import config from '../config';
 const { ANNICT_API_BASE_URL } = config;
 const ANNICT_COLOR = '#F75D75';
+const MODAL_TYPE = {
+  RECORD_DETAIL: 'record_detail',
+  RECORD_COMPLETE: 'record_complete'
+};
+const IS_DISPLAY_RECORD_COMPLETE_KEY = 'NSDEFAULT@isDisplayRecordComplete';
 
 import RecordModalScreen from './RecordModalScreen';
+import RecordCompleteModalScreen from './RecordCompleteModalScreen';
 
 export default class EpisodeScreen extends React.Component {
   static navigationOptions = {
@@ -58,12 +65,29 @@ export default class EpisodeScreen extends React.Component {
       isLoading: false,
       isEnd: false,
       workId: '',
+      modalType: MODAL_TYPE.RECORD_COMPLETE,
       isVisiblePopup: false,
       isShareOnTwitter: false,
       isShareOnFacebook: false,
       comment: '',
-      rating: 0
+      rating: 0,
+      isDisplayRecordComplete: true
     };
+
+    AsyncStorage.getItem(IS_DISPLAY_RECORD_COMPLETE_KEY, (err, param) => {
+      if (param) {
+        param = JSON.parse(param);
+      }
+      if (!param || param.isDisplayRecordComplete) {
+        this.setState({
+          isDisplayRecordComplete: true
+        });
+      } else {
+        this.setState({
+          isDisplayRecordComplete: false
+        });
+      }
+    });
   }
 
   componentDidMount() {
@@ -132,8 +156,11 @@ export default class EpisodeScreen extends React.Component {
         programs.splice(rowId, 1);
 
         this.setState({
-          programs: programs
+          programs: programs,
+          isLoading: false
         });
+
+        this.setPopupVisible(true, MODAL_TYPE.RECORD_COMPLETE);
       })
       .catch(error => {
         console.error(error);
@@ -226,9 +253,10 @@ export default class EpisodeScreen extends React.Component {
     });
   }
 
-  setPopupVisible(isVisible) {
+  setPopupVisible(isVisible, type) {
     this.setState({
-      isVisiblePopup: isVisible
+      isVisiblePopup: isVisible,
+      modalType: type
     });
   }
 
@@ -274,6 +302,13 @@ export default class EpisodeScreen extends React.Component {
               episodeId: episode.id,
               rowId: rowId
             });
+            this.setState({
+              modalEpisodeId: episode.id,
+              modalRowId: rowId,
+              modalTitle: work.title,
+              modalEpisodeTitle: `${episode.number_text} ${episode.title || ''}`
+            });
+            this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_COMPLETE);
           }}
           onLongPress={() => {
             this.setState({
@@ -282,7 +317,7 @@ export default class EpisodeScreen extends React.Component {
               modalTitle: work.title,
               modalEpisodeTitle: `${episode.number_text} ${episode.title || ''}`
             });
-            this.setPopupVisible.bind(this)(true);
+            this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_DETAIL);
           }}
         >
           <Icon name="edit" />
@@ -292,87 +327,129 @@ export default class EpisodeScreen extends React.Component {
   }
 
   renderHeader() {
-    let views = [
-      <View styleName="horizontal h-center">
-        <Title>表示できるアニメがありません</Title>
-      </View>
-    ];
-
-    // 絞込が指定されている場合は絞込解除のボタンを出す
+    let views = [];
+    console.log(this.state.workId)
+    console.log(this.state.programs.length)
+    console.log(!this.state.isLoading)
     if (this.state.workId) {
       views.push(
-        <RNButton
-          onPress={this.resetFilter.bind(this)}
-          title="絞込を解除する"
-          color={ANNICT_COLOR}
-        />
-      );
-    } else {
-      views.push(
-        <View styleName="horizontal h-center">
-          <Title>次の放送日をお待ち下さい</Title>
+        <View
+          styleName="horizontal h-center v-center"
+          style={{ backgroundColor: ANNICT_COLOR }}
+        >
+          <RNButton
+            onPress={this.resetFilter.bind(this)}
+            title="Reset filter ☓"
+            color={'#222222'}
+          />
         </View>
       );
     }
+
+    // リストが空になったときの処理
     if (this.state.programs.length === 0 && !this.state.isLoading) {
-      return (
-        <View>
-          {views}
+      views.push(
+        <View styleName="horizontal h-center" style={{padding: 22}}>
+          <Title>表示できるアニメがありません</Title>
         </View>
       );
+
+      // 絞込が指定されている場合は絞込解除のボタンを出す
+      if (this.state.workId) {
+        views.push(
+          <RNButton
+            onPress={this.resetFilter.bind(this)}
+            title="絞込を解除する"
+            color={ANNICT_COLOR}
+          />
+        );
+      } else {
+        views.push(
+          <View styleName="horizontal h-center">
+            <Title>次の放送日をお待ち下さい</Title>
+          </View>
+        );
+      }
     }
+
+    return (
+      <View>
+        {views}
+      </View>
+    );
   }
 
   render() {
-    let removeFilterBar;
-    if (this.state.workId) {
-      removeFilterBar = (
-        <Divider styleName="section-header">
-          <View
-            styleName="fill-parent horizontal h-center v-center"
-            style={{ backgroundColor: '#272822' }}
-          >
-            <RNButton
-              onPress={this.resetFilter.bind(this)}
-              title="Reset filter ☓"
-              color={ANNICT_COLOR}
+    let modalView = void 0;
+    if (this.state.isVisiblePopup) {
+      switch (this.state.modalType) {
+        case MODAL_TYPE.RECORD_DETAIL: {
+          modalView = (
+            <RecordModalScreen
+              title={this.state.modalTitle}
+              episodeTitle={this.state.modalEpisodeTitle}
+              doNotDisplayAgain={!this.state.isDisplayRecordComplete}
+              onClose={() => {
+                this.setPopupVisible.bind(this)(false);
+              }}
+              onSubmit={param => {
+                const {
+                  rating,
+                  comment,
+                  isShareOnTwitter,
+                  isShareOnFacebook
+                } = param;
+                this.markWatched({
+                  episodeId: this.state.modalEpisodeId,
+                  rowId: this.state.modalRowId,
+                  rating: rating,
+                  comment: comment,
+                  isShareOnTwitter: isShareOnTwitter,
+                  isShareOnFacebook: isShareOnFacebook
+                });
+                this.setPopupVisible(false);
+              }}
             />
-          </View>
-        </Divider>
-      );
+          );
+          break;
+        }
+        case MODAL_TYPE.RECORD_COMPLETE: {
+          if (!this.state.isDisplayRecordComplete) {
+            break;
+          }
+          modalView = (
+            <RecordCompleteModalScreen
+              title={this.state.modalTitle}
+              episodeTitle={this.state.modalEpisodeTitle}
+              onClose={() => {
+                this.setPopupVisible.bind(this)(false);
+              }}
+              onSubmit={param => {
+                const { isDisplayRecordComplete } = param;
+                // 保存処理
+                AsyncStorage.setItem(
+                  IS_DISPLAY_RECORD_COMPLETE_KEY,
+                  JSON.stringify({
+                    isDisplayRecordComplete: isDisplayRecordComplete
+                  }),
+                  () => {
+                    this.setState({
+                      isDisplayRecordComplete: isDisplayRecordComplete
+                    });
+                    this.setPopupVisible(false);
+                  }
+                );
+              }}
+            />
+          );
+          break;
+        }
+      }
     }
-
-    const modalView = this.state.isVisiblePopup
-      ? <RecordModalScreen
-          title={this.state.modalTitle}
-          episodeTitle={this.state.modalEpisodeTitle}
-          onClose={() => {
-            this.setPopupVisible.bind(this)(false);
-          }}
-          onSubmit={param => {
-            const {
-              rating,
-              comment,
-              isShareOnTwitter,
-              isShareOnFacebook
-            } = param;
-            this.markWatched({
-              episodeId: this.state.modalEpisodeId,
-              rowId: this.state.modalRowId,
-              rating: rating,
-              comment: comment,
-              isShareOnTwitter: isShareOnTwitter,
-              isShareOnFacebook: isShareOnFacebook
-            });
-            this.setPopupVisible(false);
-          }}
-        />
-      : void 0;
 
     return (
       <Screen>
         {modalView}
-        {removeFilterBar}
         <ListView
           data={this.state.programs}
           renderRow={this.renderRow.bind(this)}
