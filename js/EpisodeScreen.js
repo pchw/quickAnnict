@@ -37,6 +37,7 @@ import _ from 'lodash';
 import moment from 'moment';
 
 import * as Keychain from 'react-native-keychain';
+import IonIcon from 'react-native-vector-icons/Ionicons';
 
 import config from '../config';
 const { ANNICT_API_BASE_URL } = config;
@@ -52,7 +53,9 @@ import RecordCompleteModalScreen from './RecordCompleteModalScreen';
 
 export default class EpisodeScreen extends React.Component {
   static navigationOptions = {
-    title: 'quickAnnict'
+    title: 'quickAnnict',
+    tabBarLabel: '視聴記録',
+    tabBarIcon: ({ tintColor }) => <IonIcon name="ios-eye" size={30} />
   };
 
   constructor(props) {
@@ -328,9 +331,6 @@ export default class EpisodeScreen extends React.Component {
 
   renderHeader() {
     let views = [];
-    console.log(this.state.workId)
-    console.log(this.state.programs.length)
-    console.log(!this.state.isLoading)
     if (this.state.workId) {
       views.push(
         <View
@@ -349,7 +349,7 @@ export default class EpisodeScreen extends React.Component {
     // リストが空になったときの処理
     if (this.state.programs.length === 0 && !this.state.isLoading) {
       views.push(
-        <View styleName="horizontal h-center" style={{padding: 22}}>
+        <View styleName="horizontal h-center" style={{ padding: 22 }}>
           <Title>表示できるアニメがありません</Title>
         </View>
       );
@@ -407,7 +407,7 @@ export default class EpisodeScreen extends React.Component {
                   isShareOnTwitter: isShareOnTwitter,
                   isShareOnFacebook: isShareOnFacebook
                 });
-                this.setPopupVisible(false);
+                this.setPopupVisible(true, MODAL_TYPE.RECORD_COMPLETE);
               }}
             />
           );
