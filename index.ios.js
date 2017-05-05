@@ -1,31 +1,22 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
-
 import React, { Component } from 'react';
 import {
   AppRegistry
 } from 'react-native';
 
-import { StackNavigator } from 'react-navigation';
-const quickAnnict = StackNavigator({
-  Home: {
-    screen: require('./js/HomeScreen').default,
+import { StackNavigator, TabNavigator } from 'react-navigation';
+
+const quickAnnict = TabNavigator({
+  Episode: {
+    screen: require('./js/TabHomeScreen').default,
     path: /^callback/
   },
-  Episode: {
-    screen: require('./js/EpisodeScreen').default
-  },
-  Oauth: {
-    screen: require('./js/OAuthScreen').default
-  },
+  Program: {
+    screen: require('./js/TabProgramScreen').default
+  }
 }, {
   containerConfig: {
     URIPrefix: 'qani://'
   }
 });
-
 
 AppRegistry.registerComponent('quickAnnict', () => quickAnnict);
