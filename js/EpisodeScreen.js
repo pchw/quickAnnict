@@ -174,7 +174,7 @@ export default class EpisodeScreen extends React.Component {
       filter_unwatched: true,
       sort_started_at: 'desc',
       page: page,
-      filter_started_at_lt: moment().format('YYYY/MM/DD HH:mm')
+      filter_started_at_lt: moment().utc().format('YYYY/MM/DD HH:mm')
     };
 
     // 画面リフレッシュではなくて，既に終端に達している場合は何もしない
