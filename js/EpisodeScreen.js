@@ -74,7 +74,8 @@ export default class EpisodeScreen extends React.Component {
       isShareOnFacebook: false,
       comment: '',
       rating: 0,
-      isDisplayRecordComplete: true
+      isDisplayRecordComplete: true,
+      errorMessage: ''
     };
 
     AsyncStorage.getItem(IS_DISPLAY_RECORD_COMPLETE_KEY, (err, param) => {
@@ -160,12 +161,16 @@ export default class EpisodeScreen extends React.Component {
 
         this.setState({
           programs: programs,
-          isLoading: false
+          isLoading: false,
+          errorMessage: ''
         });
 
         this.setPopupVisible(true, MODAL_TYPE.RECORD_COMPLETE);
       })
       .catch(error => {
+        this.setState({
+          errorMessage: 'Annictとの通信に失敗しました。しばらく時間を置いてから再度記録ボタンを押して下さい。'
+        });
         console.error(error);
       });
   }
@@ -200,17 +205,22 @@ export default class EpisodeScreen extends React.Component {
           this.setState({
             programs: response.data.programs,
             isLoading: false,
+            errorMessage: '',
             isEnd: response.data.programs.length === 0
           });
         } else {
           this.setState({
             programs: this.state.programs.concat(response.data.programs),
             isLoading: false,
+            errorMessage: '',
             isEnd: response.data.programs.length === 0
           });
         }
       })
       .catch(err => {
+        this.setState({
+          errorMessage: 'Annictとの通信に失敗しました。しばらく時間を置いてから再度読み込み直して下さい。'
+        });
         console.error(err);
       });
   }
@@ -380,6 +390,22 @@ export default class EpisodeScreen extends React.Component {
   }
 
   render() {
+    let errorView;
+    if (this.state.errorMessage) {
+      errorView = (
+        <View styleName="vertical h-center" style={{ padding: 22 }}>
+          <Text>{this.state.errorMessage}</Text>
+          <View style={{ marginTop: 22 }}>
+            <RNButton
+              onPress={this.reload.bind(this)}
+              title="再読込する"
+              color={ANNICT_COLOR}
+            />
+          </View>
+        </View>
+      );
+    }
+
     let modalView = void 0;
     if (this.state.isVisiblePopup) {
       switch (this.state.modalType) {
@@ -449,6 +475,7 @@ export default class EpisodeScreen extends React.Component {
 
     return (
       <Screen>
+        {errorView}
         {modalView}
         <ListView
           data={this.state.programs}
