@@ -1,10 +1,13 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { InteractionManager } from 'react-native';
+import {
+  InteractionManager,
+  View,
+  ActivityIndicator,
+  AsyncStorage
+} from 'react-native';
 import { NavigationActions } from 'react-navigation';
-
-import { Spinner, View, Screen } from '@shoutem/ui';
 
 import axios from 'axios';
 
@@ -13,10 +16,11 @@ const {
   ANNICT_OAUTH_TOKEN_URL,
   OAUTH_CLIENT_ID,
   OAUTH_CLIENT_SECRET,
-  REDIRECT_URI
+  REDIRECT_URI,
+  OAUTH_ACCESS_TOKEN_KEY,
+  ACCESS_TOKEN
 } = config;
 
-import * as Keychain from 'react-native-keychain';
 import OAuthScreen from './OAuthScreen';
 
 export default class HomeScreen extends React.Component {
@@ -42,29 +46,18 @@ export default class HomeScreen extends React.Component {
         const token = response.data.access_token;
 
         // Keychainに保存
-        Keychain.setGenericPassword('', token)
-          .then(() => {
-            this.navigateMainScreen(token);
-          })
-          .catch(err => {
-            console.error(err);
-          });
+        AsyncStorage.setItem(OAUTH_ACCESS_TOKEN_KEY, token, () => {
+          this.navigateMainScreen(token);
+        });
       });
     } else {
       // 起動時に保存してあるaccess tokenを取得する
-      Keychain.getGenericPassword()
-        .then(credentials => {
-          const token = credentials.password;
-          if (!token) {
-            return this.navigateOAuthScreen();
-          }
-          return this.navigateMainScreen(token);
-        })
-        .catch(err => {
-          console.error(err);
-          // KeyChainに情報がないのでOAuth認証へ進む
-          this.navigateOAuthScreen();
-        });
+      AsyncStorage.getItem(OAUTH_ACCESS_TOKEN_KEY, (err, token) => {
+        if (!token && !ACCESS_TOKEN) {
+          return this.navigateOAuthScreen();
+        }
+        return this.navigateMainScreen(token || ACCESS_TOKEN);
+      });
     }
   }
   getToken(code) {
@@ -103,12 +96,12 @@ export default class HomeScreen extends React.Component {
   render() {
     const modalView = this.state.isShowOAuth ? <OAuthScreen /> : void 0;
     return (
-      <Screen>
+      <View>
         {modalView}
         <View styleName="fill-parent vertical v-center">
-          <Spinner size="large" />
+          <ActivityIndicator size="large" animating={true} />
         </View>
-      </Screen>
+      </View>
     );
   }
 }

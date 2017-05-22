@@ -5,53 +5,36 @@ import {
   InteractionManager,
   Modal,
   Switch,
-  Button as RNButton,
-  Image as RNImage,
+  Button,
+  Image,
   AsyncStorage,
-  Keyboard
+  Keyboard,
+  ListView,
+  View,
+  TouchableOpacity,
+  Text,
+  TextInput
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
-
-import {
-  NavigationBar,
-  Tile,
-  Title,
-  Image,
-  Caption,
-  ListView,
-  Row,
-  Subtitle,
-  View,
-  Screen,
-  DropDownMenu,
-  TouchableOpacity,
-  Button,
-  Text,
-  Icon,
-  Overlay,
-  Divider,
-  Lightbox,
-  TextInput
-} from '@shoutem/ui';
+import uuid from 'react-native-uuid';
 
 import axios from 'axios';
 import _ from 'lodash';
 import moment from 'moment';
-
-import * as Keychain from 'react-native-keychain';
+import styles from './styles';
 
 import config from '../config';
-const { ANNICT_API_BASE_URL } = config;
+const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY, ACCESS_TOKEN } = config;
 const ANNICT_COLOR = '#F75D75';
 
-import IonIcon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 export default class ProgramScreen extends React.Component {
   static navigationOptions = {
     title: 'アニメ一覧',
     tabBarLabel: 'アニメ一覧',
     tabBarIcon: ({ tintColor }) => {
-      return <IonIcon name="ios-list" size={30} />;
+      return <Ionicons name="ios-list" size={30} color={tintColor} />;
     }
   };
 
@@ -62,6 +45,11 @@ export default class ProgramScreen extends React.Component {
       accessToken: '',
       page: 1,
       programs: [],
+      dataSourcePrograms: new ListView.DataSource({
+        rowHasChanged: (r, l) => {
+          r !== l;
+        }
+      }),
       isLoading: true,
       isEnd: false,
       title: ''
@@ -69,18 +57,15 @@ export default class ProgramScreen extends React.Component {
   }
 
   getAccessToken() {
-    return Keychain.getGenericPassword()
-      .then(credentials => {
-        const token = credentials.password;
-        if (token) {
-          return Promise.resolve(token);
+    return new Promise((resolve, reject) => {
+      AsyncStorage.getItem(OAUTH_ACCESS_TOKEN_KEY, (err, token) => {
+        if (token || ACCESS_TOKEN) {
+          return resolve(token || ACCESS_TOKEN);
         } else {
-          return Promise.reject(new Error('no token'));
+          return reject(new Error('no token'));
         }
-      })
-      .catch(err => {
-        console.error(err);
       });
+    });
   }
 
   componentDidMount() {
@@ -147,6 +132,9 @@ export default class ProgramScreen extends React.Component {
 
         this.setState({
           programs: programs,
+          dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
+            programs
+          ),
           isLoading: false
         });
       })
@@ -196,12 +184,22 @@ export default class ProgramScreen extends React.Component {
           if (isRefresh) {
             this.setState({
               programs: works,
+              dataSourcePrograms: new ListView.DataSource({
+              rowHasChanged: (r, l) => {
+                r !== l;
+              }
+            }).cloneWithRows(
+                works
+              ),
               isLoading: false,
               isEnd: response.data.works.length === 0
             });
           } else {
             this.setState({
               programs: this.state.programs.concat(works),
+              dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
+                this.state.programs.concat(works)
+              ),
               isLoading: false,
               isEnd: response.data.works.length === 0
             });
@@ -264,24 +262,21 @@ export default class ProgramScreen extends React.Component {
     if (work.images && work.images.facebook.og_image_url) {
       image = (
         <Image
-          styleName="small rounded-corners"
+          style={styles.programRowThumbnail}
           source={{ uri: work.images.facebook.og_image_url }}
         />
       );
     } else if (work.images && work.images.recommended_url) {
       image = (
         <Image
-          styleName="small rounded-corners"
+          style={styles.programRowThumbnail}
           source={{ uri: work.images.recommended_url }}
         />
       );
     } else {
       image = (
-        <Image
-          styleName="small rounded-corners"
-          style={{ borderWidth: 1, borderColor: ANNICT_COLOR }}
-        >
-          <Text>NO IMAGE</Text>
+        <Image style={[styles.programRowThumbnail, styles.programRowNoImage]}>
+          <Text style={{ textAlign: 'center' }}>NO IMAGE</Text>
         </Image>
       );
     }
@@ -289,7 +284,8 @@ export default class ProgramScreen extends React.Component {
     let button;
     if (work.status.kind === 'watching') {
       button = (
-        <Button
+        <TouchableOpacity
+          style={[styles.regularButton]}
           onPress={() => {
             this.changeStatus.bind(this)({
               rowId: rowId,
@@ -298,13 +294,13 @@ export default class ProgramScreen extends React.Component {
             });
           }}
         >
-          <Text>視聴解除</Text>
-        </Button>
+          <Text style={styles.regularText}>視聴解除</Text>
+        </TouchableOpacity>
       );
     } else {
       button = (
-        <Button
-          styleName="clear"
+        <TouchableOpacity
+          style={[styles.regularButton]}
           onPress={() => {
             this.changeStatus.bind(this)({
               rowId: rowId,
@@ -312,24 +308,23 @@ export default class ProgramScreen extends React.Component {
               isWatch: true
             });
           }}
-          style={{
-            backgroundColor: `${ANNICT_COLOR}`
-          }}
         >
-          <Text>視聴登録</Text>
-        </Button>
+          <Text style={styles.regularText}>視聴登録</Text>
+        </TouchableOpacity>
       );
     }
 
     return (
-      <Row key={work.id}>
+      <View key={`program-${work.id}`} style={styles.programRow}>
         {image}
-        <View styleName="vertical stretch sm-gutter-top">
-          <Caption styleName="">{work.title}</Caption>
+        <View style={styles.programRowBody}>
+          <Text>{work.title}</Text>
         </View>
-        {button}
+        <View style={styles.programRowAction}>
+          {button}
+        </View>
 
-      </Row>
+      </View>
     );
   }
 
@@ -337,17 +332,18 @@ export default class ProgramScreen extends React.Component {
     let views = [];
 
     // リストが空になったときの処理
-    if (this.state.programs.length === 0 && !this.state.isLoading) {
+    // if (this.state.programs.length === 0 && !this.state.isLoading) {
+    if(true){
       views.push(
-        <View styleName="horizontal h-center" style={{ padding: 22 }}>
-          <Title>表示できるアニメがありません</Title>
+        <View key={uuid.v1()} style={{ margin: 22 }}>
+          <Text>表示できるアニメがありません</Text>
         </View>
       );
 
       // 絞込が指定されている場合は絞込解除のボタンを出す
       if (this.state.title) {
         views.push(
-          <RNButton
+          <Button
             onPress={this.resetFilter.bind(this)}
             title="絞込を解除する"
             color={ANNICT_COLOR}
@@ -355,8 +351,8 @@ export default class ProgramScreen extends React.Component {
         );
       } else {
         views.push(
-          <View styleName="horizontal h-center">
-            <Title>アニメが追加されるのをお待ち下さい</Title>
+          <View key={uuid.v1()} style={{ margin: 22 }}>
+            <Text>アニメが追加されるのをお待ち下さい</Text>
           </View>
         );
       }
@@ -372,20 +368,20 @@ export default class ProgramScreen extends React.Component {
   render() {
     if (!this.state.accessToken) {
       return (
-        <Screen>
-          <View styleName="vertical h-center" style={{ padding: 22 }}>
-            <Text>この画面ではアニメ一覧から「視聴ているアニメ」「視聴していないアニメ」を管理する事ができます</Text>
-            <RNButton
+        <View>
+          <View style={{ padding: 22 }}>
+            <Text>この画面ではアニメ一覧から「視聴しているアニメ」「視聴していないアニメ」を管理する事ができます</Text>
+            <Button
               onPress={this.reload.bind(this)}
               title="一覧を表示する"
               color={ANNICT_COLOR}
             />
           </View>
-        </Screen>
+        </View>
       );
     }
     return (
-      <Screen>
+      <View style={styles.screen}>
         <TextInput
           value={this.state.title}
           placeholder="アニメタイトルで絞込み"
@@ -396,16 +392,20 @@ export default class ProgramScreen extends React.Component {
           onBlur={() => {
             Keyboard.dismiss();
           }}
+          style={[styles.programSearch, { flex: 1 }]}
         />
-        <ListView
-          data={this.state.programs}
-          renderRow={this.renderRow.bind(this)}
-          onLoadMore={this.fetchNext.bind(this)}
-          onRefresh={this.reload.bind(this)}
-          loading={this.state.isLoading && !this.state.isEnd}
-          renderHeader={this.renderHeader.bind(this)}
-        />
-      </Screen>
+        <View style={{ flex: 10 }}>
+          <ListView
+            removeClippedSubviews={false}
+            dataSource={this.state.dataSourcePrograms}
+            renderRow={this.renderRow.bind(this)}
+            onEndReached={this.fetchNext.bind(this)}
+            onRefresh={this.reload.bind(this)}
+            loading={this.state.isLoading && !this.state.isEnd}
+            renderHeader={this.renderHeader.bind(this)}
+          />
+        </View>
+      </View>
     );
   }
 }

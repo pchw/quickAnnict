@@ -2,29 +2,17 @@
   "name": "quickAnnict",
   "version": "0.0.1",
   "private": true,
-  "scripts": {
-    "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "jest"
-  },
   "dependencies": {
-    "@shoutem/ui": "^0.12.0",
+    "@expo/vector-icons": "~4.0.0",
     "axios": "^0.16.0",
+    "expo": "~16.0.0",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "qs": "^6.4.0",
     "react": "16.0.0-alpha.6",
-    "react-native": "0.44.0",
-    "react-native-keychain": "^1.2.0",
-    "react-native-vector-icons": "^4.1.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-16.0.0.tar.gz",
+    "react-native-uuid": "^1.4.9",
     "react-navigation": "^1.0.0-beta.8"
   },
-  "devDependencies": {
-    "babel-jest": "19.0.0",
-    "babel-preset-react-native": "1.9.1",
-    "jest": "19.0.2",
-    "react-test-renderer": "git+https://github.com/react-community/react-navigation.git"
-  },
-  "jest": {
-    "preset": "react-native"
-  }
+  "main": "main.js"
 }

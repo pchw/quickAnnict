@@ -1,0 +1,20 @@
+{
+  "name": "quickAnnict",
+  "description": "No description",
+  "slug": "quickannict",
+  "privacy": "unlisted",
+  "sdkVersion": "16.0.0",
+  "version": "1.6.0",
+  "orientation": "portrait",
+  "primaryColor": "#cccccc",
+  "icon": "https://s3.amazonaws.com/exp-icon-assets/ExpoEmptyManifest_192.png",
+  "loading": {
+    "icon": "https://s3.amazonaws.com/exp-icon-assets/ExpoEmptyManifest_192.png",
+    "hideExponentText": false
+  },
+  "packagerOpts": {
+    "assetExts": [
+      "ttf"
+    ]
+  }
+}
