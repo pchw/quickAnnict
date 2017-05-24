@@ -4,17 +4,23 @@
   "slug": "quickannict",
   "privacy": "unlisted",
   "sdkVersion": "16.0.0",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "orientation": "portrait",
   "primaryColor": "#cccccc",
-  "icon": "https://s3.amazonaws.com/exp-icon-assets/ExpoEmptyManifest_192.png",
+  "icon": "https://cloud.githubusercontent.com/assets/1183484/26401156/77228340-40bf-11e7-9275-f3b85359d969.png",
   "loading": {
-    "icon": "https://s3.amazonaws.com/exp-icon-assets/ExpoEmptyManifest_192.png",
-    "hideExponentText": false
+    "backgroundColor":"#F75D75",
+    "icon": "./assets/icon.png",
+    "hideExponentText": true
   },
   "packagerOpts": {
     "assetExts": [
       "ttf"
     ]
-  }
+  },
+  "ios": {
+    "bundleIdentifier": "com.phosphoricholic.quickAnnict",
+    "buildNumber": "12"
+  },
+  "scheme": "qani"
 }

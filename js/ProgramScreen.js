@@ -13,7 +13,8 @@ import {
   View,
   TouchableOpacity,
   Text,
-  TextInput
+  TextInput,
+  RefreshControl
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import uuid from 'react-native-uuid';
@@ -25,7 +26,7 @@ import styles from './styles';
 
 import config from '../config';
 const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY, ACCESS_TOKEN } = config;
-const ANNICT_COLOR = '#F75D75';
+import { ANNICT_COLOR, GUNJYO } from './colors';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -132,9 +133,11 @@ export default class ProgramScreen extends React.Component {
 
         this.setState({
           programs: programs,
-          dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
-            programs
-          ),
+          dataSourcePrograms: new ListView.DataSource({
+            rowHasChanged: (r, l) => {
+              r !== l;
+            }
+          }).cloneWithRows(programs),
           isLoading: false
         });
       })
@@ -150,10 +153,17 @@ export default class ProgramScreen extends React.Component {
       page: page
     };
 
+    // ローディング中は二重に取れないようにする
+    if (this.state.isLoading) {
+      return;
+    }
+
     // 画面リフレッシュではなくて，既に終端に達している場合は何もしない
     if (!isRefresh && this.state.isEnd) {
       return;
     }
+
+    this.setState({ isLoading: true });
 
     if (title) {
       params.filter_title = title;
@@ -185,12 +195,10 @@ export default class ProgramScreen extends React.Component {
             this.setState({
               programs: works,
               dataSourcePrograms: new ListView.DataSource({
-              rowHasChanged: (r, l) => {
-                r !== l;
-              }
-            }).cloneWithRows(
-                works
-              ),
+                rowHasChanged: (r, l) => {
+                  r !== l;
+                }
+              }).cloneWithRows(works),
               isLoading: false,
               isEnd: response.data.works.length === 0
             });
@@ -207,14 +215,14 @@ export default class ProgramScreen extends React.Component {
         });
       })
       .catch(err => {
+        this.setState({ isLoading: false });
         console.error(err);
       });
   }
   fetchNext() {
     const page = this.state.page + 1;
     this.setState({
-      page: page,
-      isLoading: true
+      page: page
     });
     this.fetchProgram({
       page: page,
@@ -242,7 +250,6 @@ export default class ProgramScreen extends React.Component {
         this.setState({
           accessToken: token,
           page: 1,
-          isLoading: true,
           isEnd: false
         });
         this.fetchProgram({
@@ -285,7 +292,7 @@ export default class ProgramScreen extends React.Component {
     if (work.status.kind === 'watching') {
       button = (
         <TouchableOpacity
-          style={[styles.regularButton]}
+          style={[styles.regularButton, { backgroundColor: GUNJYO }]}
           onPress={() => {
             this.changeStatus.bind(this)({
               rowId: rowId,
@@ -332,8 +339,7 @@ export default class ProgramScreen extends React.Component {
     let views = [];
 
     // リストが空になったときの処理
-    // if (this.state.programs.length === 0 && !this.state.isLoading) {
-    if(true){
+    if (this.state.programs.length === 0 && !this.state.isLoading) {
       views.push(
         <View key={uuid.v1()} style={{ margin: 22 }}>
           <Text>表示できるアニメがありません</Text>
@@ -400,8 +406,12 @@ export default class ProgramScreen extends React.Component {
             dataSource={this.state.dataSourcePrograms}
             renderRow={this.renderRow.bind(this)}
             onEndReached={this.fetchNext.bind(this)}
-            onRefresh={this.reload.bind(this)}
-            loading={this.state.isLoading && !this.state.isEnd}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.isLoading && !this.state.isEnd}
+                onRefresh={this.reload.bind(this)}
+              />
+            }
             renderHeader={this.renderHeader.bind(this)}
           />
         </View>

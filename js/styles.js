@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { ANNICT_COLOR } from './colors';
+import { ANNICT_COLOR, GOFUN } from './colors';
 
 export default StyleSheet.create({
   resetFilterHeader: {
@@ -79,6 +79,7 @@ export default StyleSheet.create({
     alignItems: 'center'
   },
   screen: {
-    flex: 1
+    flex: 1,
+    backgroundColor: GOFUN
   }
 });

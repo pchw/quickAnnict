@@ -5,7 +5,8 @@ import {
   InteractionManager,
   View,
   ActivityIndicator,
-  AsyncStorage
+  AsyncStorage,
+  Linking
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 
@@ -20,6 +21,8 @@ const {
   OAUTH_ACCESS_TOKEN_KEY,
   ACCESS_TOKEN
 } = config;
+
+import { Constants } from 'expo';
 
 import OAuthScreen from './OAuthScreen';
 
@@ -36,10 +39,11 @@ export default class HomeScreen extends React.Component {
     };
   }
   componentDidMount() {
+    Linking.addEventListener('url', this._handleRedirect.bind(this));
     const { params } = this.props.navigation.state;
 
     // OAuth認証から帰ってきたらparams.codeが取れる
-    const code = params && params.code;
+    let code = params && params.code;
     if (code) {
       this.setState({ isShowOAuth: false });
       this.getToken(code).then(response => {
@@ -59,6 +63,30 @@ export default class HomeScreen extends React.Component {
         return this.navigateMainScreen(token || ACCESS_TOKEN);
       });
     }
+  }
+  _handleRedirect(event) {
+    if (!event.url.includes('callback')) {
+      return;
+    }
+    this.setState({ isShowOAuth: false });
+
+    const [, queryString] = event.url.split('?');
+    const responseObj = queryString.split('&').reduce((map, pair) => {
+      const [key, value] = queryString.split('=');
+      map[key] = value;
+      return map;
+    }, {});
+
+    const code = responseObj.code;
+
+    this.getToken(code).then(response => {
+      const token = response.data.access_token;
+
+      // Keychainに保存
+      AsyncStorage.setItem(OAUTH_ACCESS_TOKEN_KEY, token, () => {
+        this.navigateMainScreen(token);
+      });
+    });
   }
   getToken(code) {
     return axios({

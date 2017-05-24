@@ -8,7 +8,8 @@ import {
   ListView,
   TouchableOpacity,
   Text,
-  View
+  View,
+  RefreshControl
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 
@@ -35,6 +36,9 @@ import RecordCompleteModalScreen from './RecordCompleteModalScreen';
 export default class EpisodeScreen extends React.Component {
   static navigationOptions = {
     title: 'quickAnnict',
+    headerStyle: {
+      backgroundColor: ANNICT_COLOR
+    },
     tabBarLabel: '視聴記録',
     tabBarIcon: ({ tintColor }) => (
       <Ionicons name="ios-eye" size={30} color={tintColor} />
@@ -86,8 +90,7 @@ export default class EpisodeScreen extends React.Component {
     const { params } = this.props.navigation.state;
 
     this.setState({
-      accessToken: params.accessToken,
-      isLoading: true
+      accessToken: params.accessToken
     });
     this.fetchProgram({
       accessToken: params.accessToken,
@@ -173,10 +176,17 @@ export default class EpisodeScreen extends React.Component {
       filter_started_at_lt: moment().utc().format('YYYY/MM/DD HH:mm')
     };
 
+    // ローディング中は二重に取れないようにする
+    if (this.state.isLoading) {
+      return;
+    }
+
     // 画面リフレッシュではなくて，既に終端に達している場合は何もしない
     if (!isRefresh && this.state.isEnd) {
       return;
     }
+
+    this.setState({ isLoading: true });
 
     if (workId) {
       params.filter_work_ids = workId;
@@ -219,7 +229,8 @@ export default class EpisodeScreen extends React.Component {
       })
       .catch(err => {
         this.setState({
-          errorMessage: 'Annictとの通信に失敗しました。しばらく時間を置いてから再度読み込み直して下さい。'
+          errorMessage: 'Annictとの通信に失敗しました。しばらく時間を置いてから再度読み込み直して下さい。',
+          isLoading: false
         });
         console.error(err);
       });
@@ -227,8 +238,7 @@ export default class EpisodeScreen extends React.Component {
   fetchNext() {
     const page = this.state.page + 1;
     this.setState({
-      page: page,
-      isLoading: true
+      page: page
     });
     this.fetchProgram({
       accessToken: this.state.accessToken,
@@ -255,7 +265,6 @@ export default class EpisodeScreen extends React.Component {
   reload() {
     this.setState({
       page: 1,
-      isLoading: true,
       isEnd: false
     });
     this.fetchProgram({
@@ -360,7 +369,7 @@ export default class EpisodeScreen extends React.Component {
         );
       } else {
         views.push(
-          <View key={uuid.v1()}  style={{ margin: 22 }}>
+          <View key={uuid.v1()} style={{ margin: 22 }}>
             <Text>次の放送日をお待ち下さい</Text>
           </View>
         );
@@ -459,7 +468,7 @@ export default class EpisodeScreen extends React.Component {
     }
 
     return (
-      <View>
+      <View style={styles.screen}>
         {errorView}
         {modalView}
         <ListView
@@ -467,8 +476,12 @@ export default class EpisodeScreen extends React.Component {
           dataSource={this.state.dataSourcePrograms}
           renderRow={this.renderRow.bind(this)}
           onEndReached={this.fetchNext.bind(this)}
-          onRefresh={this.reload.bind(this)}
-          loading={this.state.isLoading && !this.state.isEnd}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.isLoading && !this.state.isEnd}
+              onRefresh={this.reload.bind(this)}
+            />
+          }
           renderHeader={this.renderHeader.bind(this)}
         />
       </View>
