@@ -36,7 +36,10 @@ export default class ProgramScreen extends React.Component {
     tabBarLabel: 'アニメ一覧',
     tabBarIcon: ({ tintColor }) => {
       return <Ionicons name="ios-list" size={30} color={tintColor} />;
-    }
+    },
+    headerStyle: {
+      backgroundColor: ANNICT_COLOR
+    },
   };
 
   constructor(props) {
@@ -51,7 +54,7 @@ export default class ProgramScreen extends React.Component {
           r !== l;
         }
       }),
-      isLoading: true,
+      isLoading: false,
       isEnd: false,
       title: ''
     };
