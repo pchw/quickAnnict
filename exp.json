@@ -9,7 +9,7 @@
   "primaryColor": "#cccccc",
   "icon": "https://cloud.githubusercontent.com/assets/1183484/26401156/77228340-40bf-11e7-9275-f3b85359d969.png",
   "loading": {
-    "backgroundColor":"#F75D75",
+    "backgroundColor":"#FFFFFB",
     "icon": "./assets/icon.png",
     "hideExponentText": true
   },
@@ -20,7 +20,7 @@
   },
   "ios": {
     "bundleIdentifier": "com.phosphoricholic.quickAnnict",
-    "buildNumber": "12"
+    "buildNumber": "14"
   },
   "scheme": "qani"
 }
