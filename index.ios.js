@@ -1,3 +1,4 @@
+import Expo from 'expo';
 import React, { Component } from 'react';
 import { AppRegistry } from 'react-native';
 
@@ -20,4 +21,4 @@ const quickAnnict = TabNavigator(
   }
 );
 
-AppRegistry.registerComponent('quickAnnict', () => quickAnnict);
+Expo.registerRootComponent(quickAnnict);

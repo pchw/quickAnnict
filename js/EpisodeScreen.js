@@ -2,46 +2,28 @@
 
 import React, { Component } from 'react';
 import {
-  InteractionManager,
-  Modal,
-  Switch,
-  Button as RNButton,
-  AsyncStorage
+  Button,
+  AsyncStorage,
+  Image,
+  ListView,
+  TouchableOpacity,
+  Text,
+  View,
+  RefreshControl
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
-
-import {
-  NavigationBar,
-  Tile,
-  Title,
-  Image,
-  Caption,
-  ListView,
-  Row,
-  Subtitle,
-  View,
-  Screen,
-  DropDownMenu,
-  TouchableOpacity,
-  Button,
-  Text,
-  Icon,
-  Overlay,
-  Divider,
-  Lightbox,
-  TextInput
-} from '@shoutem/ui';
 
 import axios from 'axios';
 import _ from 'lodash';
 import moment from 'moment';
+import uuid from 'react-native-uuid';
 
-import * as Keychain from 'react-native-keychain';
-import IonIcon from 'react-native-vector-icons/Ionicons';
+import { Ionicons } from '@expo/vector-icons';
 
 import config from '../config';
-const { ANNICT_API_BASE_URL } = config;
-const ANNICT_COLOR = '#F75D75';
+const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY } = config;
+import styles from './styles';
+import { ANNICT_COLOR } from './colors';
 const MODAL_TYPE = {
   RECORD_DETAIL: 'record_detail',
   RECORD_COMPLETE: 'record_complete'
@@ -54,8 +36,13 @@ import RecordCompleteModalScreen from './RecordCompleteModalScreen';
 export default class EpisodeScreen extends React.Component {
   static navigationOptions = {
     title: 'quickAnnict',
+    headerStyle: {
+      backgroundColor: ANNICT_COLOR
+    },
     tabBarLabel: '視聴記録',
-    tabBarIcon: ({ tintColor }) => <IonIcon name="ios-eye" size={30} />
+    tabBarIcon: ({ tintColor }) => (
+      <Ionicons name="ios-eye" size={30} color={tintColor} />
+    )
   };
 
   constructor(props) {
@@ -75,7 +62,12 @@ export default class EpisodeScreen extends React.Component {
       comment: '',
       rating: 0,
       isDisplayRecordComplete: true,
-      errorMessage: ''
+      errorMessage: '',
+      dataSourcePrograms: new ListView.DataSource({
+        rowHasChanged: (r, l) => {
+          r !== l;
+        }
+      })
     };
 
     AsyncStorage.getItem(IS_DISPLAY_RECORD_COMPLETE_KEY, (err, param) => {
@@ -98,8 +90,7 @@ export default class EpisodeScreen extends React.Component {
     const { params } = this.props.navigation.state;
 
     this.setState({
-      accessToken: params.accessToken,
-      isLoading: true
+      accessToken: params.accessToken
     });
     this.fetchProgram({
       accessToken: params.accessToken,
@@ -107,7 +98,7 @@ export default class EpisodeScreen extends React.Component {
     });
   }
   logout() {
-    Keychain.resetGenericPassword().then(() => {
+    AsyncStorage.removeItem(OAUTH_ACCESS_TOKEN_KEY, () => {
       this.props.navigation.dispatch(
         NavigationActions.reset({
           index: 0,
@@ -160,6 +151,13 @@ export default class EpisodeScreen extends React.Component {
         programs.splice(rowId, 1);
 
         this.setState({
+          dataSourcePrograms: new ListView.DataSource({
+              rowHasChanged: (r, l) => {
+                r !== l;
+              }
+            }).cloneWithRows(
+            programs
+          ),
           programs: programs,
           isLoading: false,
           errorMessage: ''
@@ -182,10 +180,17 @@ export default class EpisodeScreen extends React.Component {
       filter_started_at_lt: moment().utc().format('YYYY/MM/DD HH:mm')
     };
 
+    // ローディング中は二重に取れないようにする
+    if (this.state.isLoading) {
+      return;
+    }
+
     // 画面リフレッシュではなくて，既に終端に達している場合は何もしない
     if (!isRefresh && this.state.isEnd) {
       return;
     }
+
+    this.setState({ isLoading: true });
 
     if (workId) {
       params.filter_work_ids = workId;
@@ -201,25 +206,35 @@ export default class EpisodeScreen extends React.Component {
       params: params
     })
       .then(response => {
+        const programs = response.data.programs;
         if (isRefresh) {
           this.setState({
-            programs: response.data.programs,
+            dataSourcePrograms: new ListView.DataSource({
+              rowHasChanged: (r, l) => {
+                r !== l;
+              }
+            }).cloneWithRows(programs),
+            programs: programs,
             isLoading: false,
             errorMessage: '',
-            isEnd: response.data.programs.length === 0
+            isEnd: programs.length === 0
           });
         } else {
           this.setState({
-            programs: this.state.programs.concat(response.data.programs),
+            programs: this.state.programs.concat(programs),
+            dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
+              this.state.programs.concat(programs)
+            ),
             isLoading: false,
             errorMessage: '',
-            isEnd: response.data.programs.length === 0
+            isEnd: programs.length === 0
           });
         }
       })
       .catch(err => {
         this.setState({
-          errorMessage: 'Annictとの通信に失敗しました。しばらく時間を置いてから再度読み込み直して下さい。'
+          errorMessage: 'Annictとの通信に失敗しました。しばらく時間を置いてから再度読み込み直して下さい。',
+          isLoading: false
         });
         console.error(err);
       });
@@ -227,8 +242,7 @@ export default class EpisodeScreen extends React.Component {
   fetchNext() {
     const page = this.state.page + 1;
     this.setState({
-      page: page,
-      isLoading: true
+      page: page
     });
     this.fetchProgram({
       accessToken: this.state.accessToken,
@@ -255,7 +269,6 @@ export default class EpisodeScreen extends React.Component {
   reload() {
     this.setState({
       page: 1,
-      isLoading: true,
       isEnd: false
     });
     this.fetchProgram({
@@ -279,37 +292,25 @@ export default class EpisodeScreen extends React.Component {
     const image = work.images && work.images.facebook.og_image_url
       ? { uri: work.images.facebook.og_image_url }
       : { uri: work.images.recommended_url };
-    let filterOverlay;
-    if (!this.state.workId) {
-      filterOverlay = (
+
+    return (
+      <View style={styles.episodeRow} key={`episode-${episode.id}`}>
         <TouchableOpacity
           onPress={() => {
             this.filterWorks.bind(this)(work.id);
           }}
+          style={styles.episodeRowSelectable}
         >
-          <Overlay
-            styleName="solid-bright fill-parent rounded-small"
-            style={{ backgroundColor: '#F75D75' }}
-          >
-            <Icon name="search" />
-          </Overlay>
+          <Image style={styles.episodeRowThumbnail} source={image} />
+          <View style={styles.episodeRowBody}>
+            <Text style={styles.episodeRowText}>{work.title}</Text>
+            <Text style={[styles.episodeRowText, styles.boldText]}>
+              {episode.number_text} {episode.title}
+            </Text>
+          </View>
         </TouchableOpacity>
-      );
-    }
-    return (
-      <Row styleName="small">
-
-        <Image styleName="small rounded-corners" source={image}>
-          {filterOverlay}
-        </Image>
-        <View styleName="vertical stretch sm-gutter-top">
-          <Caption styleName="">{work.title}</Caption>
-          <Caption styleName="bold">
-            {episode.number_text} {episode.title}
-          </Caption>
-        </View>
-        <Button
-          styleName="clear"
+        <TouchableOpacity
+          style={styles.episodeRowAction}
           onPress={() => {
             this.markWatched.bind(this)({
               episodeId: episode.id,
@@ -333,9 +334,9 @@ export default class EpisodeScreen extends React.Component {
             this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_DETAIL);
           }}
         >
-          <Icon name="edit" />
-        </Button>
-      </Row>
+          <Ionicons name="ios-create-outline" size={30} />
+        </TouchableOpacity>
+      </View>
     );
   }
 
@@ -343,11 +344,8 @@ export default class EpisodeScreen extends React.Component {
     let views = [];
     if (this.state.workId) {
       views.push(
-        <View
-          styleName="horizontal h-center v-center"
-          style={{ backgroundColor: ANNICT_COLOR }}
-        >
-          <RNButton
+        <View key={uuid.v1()} style={styles.resetFilterHeader}>
+          <Button
             onPress={this.resetFilter.bind(this)}
             title="Reset filter ☓"
             color={'#222222'}
@@ -359,15 +357,15 @@ export default class EpisodeScreen extends React.Component {
     // リストが空になったときの処理
     if (this.state.programs.length === 0 && !this.state.isLoading) {
       views.push(
-        <View styleName="horizontal h-center" style={{ padding: 22 }}>
-          <Title>表示できるアニメがありません</Title>
+        <View key={uuid.v1()} style={{ margin: 22 }}>
+          <Text>表示できるアニメがありません</Text>
         </View>
       );
 
       // 絞込が指定されている場合は絞込解除のボタンを出す
       if (this.state.workId) {
         views.push(
-          <RNButton
+          <Button
             onPress={this.resetFilter.bind(this)}
             title="絞込を解除する"
             color={ANNICT_COLOR}
@@ -375,8 +373,8 @@ export default class EpisodeScreen extends React.Component {
         );
       } else {
         views.push(
-          <View styleName="horizontal h-center">
-            <Title>次の放送日をお待ち下さい</Title>
+          <View key={uuid.v1()} style={{ margin: 22 }}>
+            <Text>次の放送日をお待ち下さい</Text>
           </View>
         );
       }
@@ -393,10 +391,10 @@ export default class EpisodeScreen extends React.Component {
     let errorView;
     if (this.state.errorMessage) {
       errorView = (
-        <View styleName="vertical h-center" style={{ padding: 22 }}>
+        <View style={{ padding: 22 }}>
           <Text>{this.state.errorMessage}</Text>
           <View style={{ marginTop: 22 }}>
-            <RNButton
+            <Button
               onPress={this.reload.bind(this)}
               title="再読込する"
               color={ANNICT_COLOR}
@@ -474,18 +472,23 @@ export default class EpisodeScreen extends React.Component {
     }
 
     return (
-      <Screen>
+      <View style={styles.screen}>
         {errorView}
         {modalView}
         <ListView
-          data={this.state.programs}
+          removeClippedSubviews={false}
+          dataSource={this.state.dataSourcePrograms}
           renderRow={this.renderRow.bind(this)}
-          onLoadMore={this.fetchNext.bind(this)}
-          onRefresh={this.reload.bind(this)}
-          loading={this.state.isLoading && !this.state.isEnd}
+          onEndReached={this.fetchNext.bind(this)}
+          refreshControl={
+            <RefreshControl
+              refreshing={this.state.isLoading && !this.state.isEnd}
+              onRefresh={this.reload.bind(this)}
+            />
+          }
           renderHeader={this.renderHeader.bind(this)}
         />
-      </Screen>
+      </View>
     );
   }
 }

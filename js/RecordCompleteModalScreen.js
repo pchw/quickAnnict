@@ -5,21 +5,18 @@ import {
   InteractionManager,
   Modal,
   Switch,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  View,
+  TouchableOpacity,
+  Text,
+  TextInput
 } from 'react-native';
 
-import {
-  Title,
-  Caption,
-  Subtitle,
-  View,
-  Button,
-  Text,
-  Icon,
-  TextInput
-} from '@shoutem/ui';
+import { Ionicons } from '@expo/vector-icons';
 
 import _ from 'lodash';
+
+import styles from './styles';
 
 export default class RecordCompleteModalScreen extends React.Component {
   constructor(props) {
@@ -47,29 +44,39 @@ export default class RecordCompleteModalScreen extends React.Component {
       >
         <View style={{ flex: 1, padding: 22 }}>
           <Text style={{ alignSelf: 'center' }}>視聴記録が完了しました</Text>
-          <Button
-            styleName="clear"
+          <TouchableOpacity
             style={{ alignSelf: 'flex-end' }}
             onPress={this.props.onClose}
           >
-            <Icon name="close" />
-          </Button>
-          <Title>{this.props.title}</Title>
-          <Subtitle style={{ marginBottom: 10 }}>
+            <Ionicons name="ios-close" size={30} />
+          </TouchableOpacity>
+          <Text>{this.props.title}</Text>
+          <Text style={{ marginBottom: 10 }}>
             {this.props.episodeTitle}
-          </Subtitle>
-          <Subtitle style={{ marginBottom: 22 }}>
+          </Text>
+          <Text style={{ marginBottom: 22 }}>
             を視聴記録しました
-          </Subtitle>
-          <Caption>次回以降はこの画面を表示しない</Caption>
-          <Switch
-            onValueChange={val => this.setState({ doNotDisplayAgain: val })}
-            value={this.state.doNotDisplayAgain}
-          />
+          </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginBottom: 5
+            }}
+          >
+            <Text>次回以降はこの画面を表示しない</Text>
+            <Switch
+              onValueChange={val => this.setState({ doNotDisplayAgain: val })}
+              value={this.state.doNotDisplayAgain}
+            />
+          </View>
 
-          <Button styleName="md-gutter-top" onPress={this.onSubmit.bind(this)}>
+          <TouchableOpacity
+            style={styles.regularButton}
+            onPress={this.onSubmit.bind(this)}
+          >
             <Text>設定を保存して閉じる</Text>
-          </Button>
+          </TouchableOpacity>
         </View>
       </Modal>
     );

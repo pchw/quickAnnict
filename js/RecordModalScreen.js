@@ -5,21 +5,18 @@ import {
   InteractionManager,
   Modal,
   Switch,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput
 } from 'react-native';
 
-import {
-  Title,
-  Caption,
-  Subtitle,
-  View,
-  Button,
-  Text,
-  Icon,
-  TextInput
-} from '@shoutem/ui';
+import { Ionicons } from '@expo/vector-icons';
 
 import _ from 'lodash';
+
+import styles from './styles';
 
 export default class RecordModalScreen extends React.Component {
   constructor(props) {
@@ -52,26 +49,25 @@ export default class RecordModalScreen extends React.Component {
 
   render() {
     let ratingButtons = [];
-    let iconName = 'add-to-favorites';
+    let iconName = 'ios-star-outline';
 
     _.range(5).forEach(i => {
       const rate = i + 1;
       if (this.state.rating >= rate) {
-        iconName = 'add-to-favorites-full';
+        iconName = 'ios-star';
       } else {
-        iconName = 'add-to-favorites';
+        iconName = 'ios-star-outline';
       }
       ratingButtons.push(
-        <Button
+        <TouchableOpacity
           key={`modal-button-${rate}`}
-          styleName="clear"
           style={{ padding: 0 }}
           onPress={() => {
             this.changeRating.bind(this)(rate);
           }}
         >
-          <Icon name={iconName} />
-        </Button>
+          <Ionicons name={iconName} size={30} />
+        </TouchableOpacity>
       );
     });
 
@@ -85,32 +81,31 @@ export default class RecordModalScreen extends React.Component {
         <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
           <View style={{ flex: 1, padding: 22 }}>
             <Text style={{ alignSelf: 'center' }}>Record details</Text>
-            <Button
-              styleName="clear"
+            <TouchableOpacity
               style={{ alignSelf: 'flex-end' }}
               onPress={this.props.onClose}
             >
-              <Icon name="close" />
-            </Button>
-            <Title>{this.props.title}</Title>
-            <Subtitle style={{ marginBottom: 10 }}>
+              <Ionicons name="ios-close" size={30} />
+            </TouchableOpacity>
+            <Text>{this.props.title}</Text>
+            <Text style={{ marginBottom: 10 }}>
               {this.props.episodeTitle}
-            </Subtitle>
-            <Caption>Rating:</Caption>
-            <View styleName="horizontal sm-gutter-bottom">
+            </Text>
+            <Text>Rating:</Text>
+            <View style={{ flexDirection: 'row' }}>
               {ratingButtons}
             </View>
-            <Caption>Share on twitter:</Caption>
+            <Text>Share on twitter:</Text>
             <Switch
               onValueChange={val => this.setState({ isShareOnTwitter: val })}
               value={this.state.isShareOnTwitter}
             />
-            <Caption>Share on facebook:</Caption>
+            <Text>Share on facebook:</Text>
             <Switch
               onValueChange={val => this.setState({ isShareOnFacebook: val })}
               value={this.state.isShareOnFacebook}
             />
-            <Caption>Comment:</Caption>
+            <Text>Comment:</Text>
             <TextInput
               multiline={true}
               style={{
@@ -118,18 +113,20 @@ export default class RecordModalScreen extends React.Component {
                 borderColor: '#000000',
                 borderStyle: 'solid',
                 borderWidth: 1,
-                borderRadius: 3
+                borderRadius: 3,
+                marginBottom: 5,
+                padding: 10
               }}
               onChangeText={comment => {
                 this.setState({ comment: comment });
               }}
             />
-            <Button
-              styleName="md-gutter-top"
+            <TouchableOpacity
+              style={[styles.regularButton, { alignItems: 'center' }]}
               onPress={this.onSubmit.bind(this)}
             >
               <Text>Record</Text>
-            </Button>
+            </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
       </Modal>

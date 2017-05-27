@@ -1,9 +1,7 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { WebView, Modal } from 'react-native';
-
-import { Text, View, Button } from '@shoutem/ui';
+import { WebView, Modal, Text, View, TouchableOpacity } from 'react-native';
 
 import qs from 'qs';
 import config from '../config';
@@ -45,17 +43,18 @@ export default class OAuthScreen extends React.Component {
           <Text style={{ marginBottom: 22 }}>
             Annictに記録するためにAnnictにログインする必要があります。
           </Text>
-          <Button
+          <TouchableOpacity
             style={{
               backgroundColor: '#F75D75',
-              borderColor: '#F75D75'
+              borderColor: '#F75D75',
+              padding: 20
             }}
             onPress={() => {
               this.setState({ isShowWebView: true });
             }}
           >
-            <Text>ログインする </Text>
-          </Button>
+            <Text style={{ textAlign: 'center' }}>ログインする </Text>
+          </TouchableOpacity>
         </View>;
 
     return (
