@@ -151,7 +151,11 @@ export default class EpisodeScreen extends React.Component {
         programs.splice(rowId, 1);
 
         this.setState({
-          dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
+          dataSourcePrograms: new ListView.DataSource({
+              rowHasChanged: (r, l) => {
+                r !== l;
+              }
+            }).cloneWithRows(
             programs
           ),
           programs: programs,
