@@ -24,6 +24,7 @@ import config from '../config';
 const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY } = config;
 import styles from './styles';
 import { ANNICT_COLOR } from './colors';
+import { RATINGS } from './ratings';
 const MODAL_TYPE = {
   RECORD_DETAIL: 'record_detail',
   RECORD_COMPLETE: 'record_complete'
@@ -60,7 +61,7 @@ export default class EpisodeScreen extends React.Component {
       isShareOnTwitter: false,
       isShareOnFacebook: false,
       comment: '',
-      rating: 0,
+      ratingState: RATINGS.AVERAGE,
       isDisplayRecordComplete: true,
       errorMessage: '',
       dataSourcePrograms: new ListView.DataSource({
@@ -115,7 +116,7 @@ export default class EpisodeScreen extends React.Component {
     episodeId,
     rowId,
     comment,
-    rating,
+    ratingState,
     isShareOnTwitter,
     isShareOnFacebook
   }) {
@@ -123,8 +124,8 @@ export default class EpisodeScreen extends React.Component {
 
     let postData = {};
     postData.episode_id = episodeId;
-    if (rating) {
-      postData.rating = rating;
+    if (ratingState) {
+      postData.rating_state = ratingState;
     }
     if (comment) {
       postData.comment = comment;
@@ -152,12 +153,10 @@ export default class EpisodeScreen extends React.Component {
 
         this.setState({
           dataSourcePrograms: new ListView.DataSource({
-              rowHasChanged: (r, l) => {
-                r !== l;
-              }
-            }).cloneWithRows(
-            programs
-          ),
+            rowHasChanged: (r, l) => {
+              r !== l;
+            }
+          }).cloneWithRows(programs),
           programs: programs,
           isLoading: false,
           errorMessage: ''
@@ -418,7 +417,7 @@ export default class EpisodeScreen extends React.Component {
               }}
               onSubmit={param => {
                 const {
-                  rating,
+                  ratingState,
                   comment,
                   isShareOnTwitter,
                   isShareOnFacebook
@@ -426,7 +425,7 @@ export default class EpisodeScreen extends React.Component {
                 this.markWatched({
                   episodeId: this.state.modalEpisodeId,
                   rowId: this.state.modalRowId,
-                  rating: rating,
+                  ratingState: ratingState,
                   comment: comment,
                   isShareOnTwitter: isShareOnTwitter,
                   isShareOnFacebook: isShareOnFacebook

@@ -39,7 +39,7 @@ export default class ProgramScreen extends React.Component {
     },
     headerStyle: {
       backgroundColor: ANNICT_COLOR
-    },
+    }
   };
 
   constructor(props) {

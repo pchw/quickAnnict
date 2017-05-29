@@ -12,11 +12,13 @@ import {
   TextInput
 } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 import _ from 'lodash';
 
 import styles from './styles';
+
+import { RATINGS, RATING_ICONS } from './ratings';
 
 export default class RecordModalScreen extends React.Component {
   constructor(props) {
@@ -26,21 +28,21 @@ export default class RecordModalScreen extends React.Component {
       isShareOnTwitter: false,
       isShareOnFacebook: false,
       comment: '',
-      rating: 0
+      ratingState: RATINGS.AVERAGE
     };
   }
 
   changeRating(rating) {
-    if (rating === this.state.rating) {
-      this.setState({ rating: 0 });
+    if (rating === this.state.ratingState) {
+      this.setState({ ratingState: RATINGS.AVERAGE });
     } else {
-      this.setState({ rating: rating });
+      this.setState({ ratingState: rating });
     }
   }
 
   onSubmit() {
     this.props.onSubmit({
-      rating: this.state.rating,
+      ratingState: this.state.ratingState,
       comment: this.state.comment,
       isShareOnTwitter: this.state.isShareOnTwitter,
       isShareOnFacebook: this.state.isShareOnFacebook
@@ -49,24 +51,25 @@ export default class RecordModalScreen extends React.Component {
 
   render() {
     let ratingButtons = [];
-    let iconName = 'ios-star-outline';
+    let iconName = 'off';
 
-    _.range(5).forEach(i => {
-      const rate = i + 1;
-      if (this.state.rating >= rate) {
-        iconName = 'ios-star';
+    Object.keys(RATINGS).forEach(key => {
+      const rating = RATINGS[key];
+      if (rating === this.state.ratingState) {
+        iconName = 'on';
       } else {
-        iconName = 'ios-star-outline';
+        iconName = 'off';
       }
       ratingButtons.push(
         <TouchableOpacity
-          key={`modal-button-${rate}`}
+          key={`modal-button-${rating}`}
           style={{ padding: 0 }}
           onPress={() => {
-            this.changeRating.bind(this)(rate);
+            this.changeRating.bind(this)(rating);
           }}
         >
-          <Ionicons name={iconName} size={30} />
+          <Ionicons name={RATING_ICONS[key][iconName]} size={30} />
+          <Text>{key}</Text>
         </TouchableOpacity>
       );
     });
