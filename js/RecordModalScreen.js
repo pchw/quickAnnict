@@ -17,8 +17,9 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import _ from 'lodash';
 
 import styles from './styles';
+import { ANNICT_COLOR } from './colors';
 
-import { RATINGS, RATING_ICONS } from './ratings';
+import { RATINGS, RATING_ICONS, RATING_WORDS } from './ratings';
 
 export default class RecordModalScreen extends React.Component {
   constructor(props) {
@@ -51,25 +52,27 @@ export default class RecordModalScreen extends React.Component {
 
   render() {
     let ratingButtons = [];
-    let iconName = 'off';
+    let iconStyle = {};
 
     Object.keys(RATINGS).forEach(key => {
       const rating = RATINGS[key];
       if (rating === this.state.ratingState) {
-        iconName = 'on';
+        iconStyle = { backgroundColor: ANNICT_COLOR };
       } else {
-        iconName = 'off';
+        iconStyle = {};
       }
       ratingButtons.push(
         <TouchableOpacity
           key={`modal-button-${rating}`}
-          style={{ padding: 0 }}
+          style={[iconStyle, { padding: 5, alignItems: 'center', flex: 1 }]}
           onPress={() => {
             this.changeRating.bind(this)(rating);
           }}
         >
-          <Ionicons name={RATING_ICONS[key][iconName]} size={30} />
-          <Text>{key}</Text>
+          <FontAwesome name={RATING_ICONS[key]} size={30} />
+          <Text adjustsFontSizeToFit={true} minimumFontScale={0.9}>
+            {RATING_WORDS[key]}
+          </Text>
         </TouchableOpacity>
       );
     });
@@ -95,7 +98,9 @@ export default class RecordModalScreen extends React.Component {
               {this.props.episodeTitle}
             </Text>
             <Text>Rating:</Text>
-            <View style={{ flexDirection: 'row' }}>
+            <View
+              style={{ flexDirection: 'row', borderWidth: 1, borderRadius: 3 }}
+            >
               {ratingButtons}
             </View>
             <Text>Share on twitter:</Text>
