@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import { ANNICT_COLOR, GOFUN } from './colors';
+import { ANNICT_COLOR, GOFUN, NAMARI } from './colors';
 
 export default StyleSheet.create({
   resetFilterHeader: {
@@ -70,6 +70,9 @@ export default StyleSheet.create({
   },
   regularText: {
     fontSize: 12
+  },
+  subText: {
+    color: NAMARI
   },
   regularButton: {
     padding: 15,

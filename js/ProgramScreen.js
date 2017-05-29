@@ -329,6 +329,7 @@ export default class ProgramScreen extends React.Component {
         {image}
         <View style={styles.programRowBody}>
           <Text>{work.title}</Text>
+          <Text style={styles.subText}>Watchers: {work.watchers_count}</Text>
         </View>
         <View style={styles.programRowAction}>
           {button}
