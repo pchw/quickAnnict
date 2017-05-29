@@ -12,11 +12,14 @@ import {
   TextInput
 } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 import _ from 'lodash';
 
 import styles from './styles';
+import { ANNICT_COLOR } from './colors';
+
+import { RATINGS, RATING_ICONS, RATING_WORDS } from './ratings';
 
 export default class RecordModalScreen extends React.Component {
   constructor(props) {
@@ -26,21 +29,21 @@ export default class RecordModalScreen extends React.Component {
       isShareOnTwitter: false,
       isShareOnFacebook: false,
       comment: '',
-      rating: 0
+      ratingState: RATINGS.AVERAGE
     };
   }
 
   changeRating(rating) {
-    if (rating === this.state.rating) {
-      this.setState({ rating: 0 });
+    if (rating === this.state.ratingState) {
+      this.setState({ ratingState: RATINGS.AVERAGE });
     } else {
-      this.setState({ rating: rating });
+      this.setState({ ratingState: rating });
     }
   }
 
   onSubmit() {
     this.props.onSubmit({
-      rating: this.state.rating,
+      ratingState: this.state.ratingState,
       comment: this.state.comment,
       isShareOnTwitter: this.state.isShareOnTwitter,
       isShareOnFacebook: this.state.isShareOnFacebook
@@ -49,24 +52,27 @@ export default class RecordModalScreen extends React.Component {
 
   render() {
     let ratingButtons = [];
-    let iconName = 'ios-star-outline';
+    let iconStyle = {};
 
-    _.range(5).forEach(i => {
-      const rate = i + 1;
-      if (this.state.rating >= rate) {
-        iconName = 'ios-star';
+    Object.keys(RATINGS).forEach(key => {
+      const rating = RATINGS[key];
+      if (rating === this.state.ratingState) {
+        iconStyle = { backgroundColor: ANNICT_COLOR };
       } else {
-        iconName = 'ios-star-outline';
+        iconStyle = {};
       }
       ratingButtons.push(
         <TouchableOpacity
-          key={`modal-button-${rate}`}
-          style={{ padding: 0 }}
+          key={`modal-button-${rating}`}
+          style={[iconStyle, { padding: 5, alignItems: 'center', flex: 1 }]}
           onPress={() => {
-            this.changeRating.bind(this)(rate);
+            this.changeRating.bind(this)(rating);
           }}
         >
-          <Ionicons name={iconName} size={30} />
+          <FontAwesome name={RATING_ICONS[key]} size={30} />
+          <Text adjustsFontSizeToFit={true} minimumFontScale={0.9}>
+            {RATING_WORDS[key]}
+          </Text>
         </TouchableOpacity>
       );
     });
@@ -92,7 +98,9 @@ export default class RecordModalScreen extends React.Component {
               {this.props.episodeTitle}
             </Text>
             <Text>Rating:</Text>
-            <View style={{ flexDirection: 'row' }}>
+            <View
+              style={{ flexDirection: 'row', borderWidth: 1, borderRadius: 3 }}
+            >
               {ratingButtons}
             </View>
             <Text>Share on twitter:</Text>
