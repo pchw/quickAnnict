@@ -16,7 +16,6 @@ import { NavigationActions } from 'react-navigation';
 import axios from 'axios';
 import _ from 'lodash';
 import moment from 'moment';
-import uuid from 'react-native-uuid';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -25,6 +24,7 @@ const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY } = config;
 import styles from './styles';
 import { ANNICT_COLOR } from './colors';
 import { RATINGS } from './ratings';
+import uuid from './guid';
 const MODAL_TYPE = {
   RECORD_DETAIL: 'record_detail',
   RECORD_COMPLETE: 'record_complete'
@@ -343,7 +343,7 @@ export default class EpisodeScreen extends React.Component {
     let views = [];
     if (this.state.workId) {
       views.push(
-        <View key={uuid.v1()} style={styles.resetFilterHeader}>
+        <View key={uuid()} style={styles.resetFilterHeader}>
           <Button
             onPress={this.resetFilter.bind(this)}
             title="Reset filter ☓"
@@ -356,7 +356,7 @@ export default class EpisodeScreen extends React.Component {
     // リストが空になったときの処理
     if (this.state.programs.length === 0 && !this.state.isLoading) {
       views.push(
-        <View key={uuid.v1()} style={{ margin: 22 }}>
+        <View key={uuid()} style={{ margin: 22 }}>
           <Text>表示できるアニメがありません</Text>
         </View>
       );
@@ -372,7 +372,7 @@ export default class EpisodeScreen extends React.Component {
         );
       } else {
         views.push(
-          <View key={uuid.v1()} style={{ margin: 22 }}>
+          <View key={uuid()} style={{ margin: 22 }}>
             <Text>次の放送日をお待ち下さい</Text>
           </View>
         );

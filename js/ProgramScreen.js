@@ -17,7 +17,7 @@ import {
   RefreshControl
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
-import uuid from 'react-native-uuid';
+import uuid from './guid';
 
 import axios from 'axios';
 import _ from 'lodash';
@@ -345,7 +345,7 @@ export default class ProgramScreen extends React.Component {
     // リストが空になったときの処理
     if (this.state.programs.length === 0 && !this.state.isLoading) {
       views.push(
-        <View key={uuid.v1()} style={{ margin: 22 }}>
+        <View key={uuid()} style={{ margin: 22 }}>
           <Text>表示できるアニメがありません</Text>
         </View>
       );
@@ -361,7 +361,7 @@ export default class ProgramScreen extends React.Component {
         );
       } else {
         views.push(
-          <View key={uuid.v1()} style={{ margin: 22 }}>
+          <View key={uuid()} style={{ margin: 22 }}>
             <Text>アニメが追加されるのをお待ち下さい</Text>
           </View>
         );
