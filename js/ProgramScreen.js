@@ -14,7 +14,8 @@ import {
   TouchableOpacity,
   Text,
   TextInput,
-  RefreshControl
+  RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import uuid from './guid';
@@ -333,6 +334,22 @@ export default class ProgramScreen extends React.Component {
     );
   }
 
+  renderFooter() {
+    let loadingView;
+    if (
+      this.state.programs.length > 0 &&
+      this.state.isLoading &&
+      !this.state.isEnd
+    ) {
+      loadingView = (
+        <View>
+          <ActivityIndicator animating={true} color={ANNICT_COLOR} />
+        </View>
+      );
+    }
+    return loadingView;
+  }
+
   render() {
     if (!this.annict) {
       return (
@@ -367,6 +384,7 @@ export default class ProgramScreen extends React.Component {
             removeClippedSubviews={false}
             dataSource={this.state.dataSourcePrograms}
             renderRow={this.renderRow.bind(this)}
+            renderFooter={this.renderFooter.bind(this)}
             onEndReached={this.fetchNext.bind(this)}
             refreshControl={
               <RefreshControl
