@@ -69,7 +69,7 @@ export default class Annict {
       params.filter_work_ids = workId;
     }
 
-    axios({
+    return axios({
       url: `${ANNICT_API_BASE_URL}/v1/me/programs`,
       method: 'GET',
       headers: {
@@ -91,31 +91,36 @@ export default class Annict {
       params.filter_title = title;
     }
 
-    axios({
-      url: `${ANNICT_API_BASE_URL}/v1/works`,
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${this.state.accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      params: params
-    }).then(response => {
-      this.checkWorksStatus({
-        workIds: _.map(response.data.works, 'id')
-      }).then(workMap => {
-        let works = [];
-        response.data.works.forEach(function(work) {
-          if (workMap[work.id]) {
-            work.status = { kind: workMap[work.id] };
-          } else {
-            work.status = { kind: 'no_select' };
-          }
-          works.push(work);
-        });
+    return new Promise((resolve, reject) => {
+      return axios({
+        url: `${ANNICT_API_BASE_URL}/v1/works`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${this.state.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        params: params
+      }).then(response => {
+        this.checkWorksStatus({
+          workIds: _.map(response.data.works, 'id')
+        }).then(workMap => {
+          let works = [];
+          response.data.works.forEach(function(work) {
+            if (workMap[work.id]) {
+              work.status = { kind: workMap[work.id] };
+            } else {
+              work.status = { kind: 'no_select' };
+            }
+            works.push(work);
+          });
 
-        // TODO: Promise.resolveが必要？
-        // catchが必要？
-        return { works: works };
+          // TODO: Promise.resolveが必要？
+          // catchが必要？
+          return resolve({
+            works: works,
+            isEnd: response.data.works.length === 0
+          });
+        });
       });
     });
   }
@@ -149,7 +154,7 @@ export default class Annict {
       kind: kind
     };
 
-    axios({
+    return axios({
       url: `${ANNICT_API_BASE_URL}/v1/me/statuses`,
       method: 'POST',
       headers: {

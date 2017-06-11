@@ -30,6 +30,8 @@ import { ANNICT_COLOR, GUNJYO } from './colors';
 
 import { Ionicons } from '@expo/vector-icons';
 
+import Annict from './annict';
+
 export default class ProgramScreen extends React.Component {
   static navigationOptions = {
     title: 'アニメ一覧',
@@ -45,8 +47,8 @@ export default class ProgramScreen extends React.Component {
   constructor(props) {
     super(props);
 
+    this.annict = null;
     this.state = {
-      accessToken: '',
       page: 1,
       programs: [],
       dataSourcePrograms: new ListView.DataSource({
@@ -76,9 +78,8 @@ export default class ProgramScreen extends React.Component {
     this.getAccessToken()
       .then(token => {
         if (token) {
-          this.setState({ accessToken: token });
+          this.annict = new Annict({ accessToken: token });
           this.fetchProgram({
-            accessToken: token,
             page: this.state.page
           });
         }
@@ -114,21 +115,8 @@ export default class ProgramScreen extends React.Component {
 
   changeStatus({ rowId, workId, isWatch }) {
     rowId = parseInt(rowId, 10);
-    const kind = isWatch ? 'watching' : 'no_select';
-    let body = {
-      work_id: workId,
-      kind: kind
-    };
-
-    axios({
-      url: `${ANNICT_API_BASE_URL}/v1/me/statuses`,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.state.accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      data: body
-    })
+    this.annict
+      .changeWorkStatus({ workId, isWatch })
       .then(response => {
         // 一覧をコピー
         let programs = this.state.programs.slice();
@@ -150,12 +138,6 @@ export default class ProgramScreen extends React.Component {
   }
 
   fetchProgram({ page, isRefresh, title }) {
-    let params = {
-      sort_season: 'desc',
-      sort_watchers_count: 'desc',
-      page: page
-    };
-
     // ローディング中は二重に取れないようにする
     if (this.state.isLoading) {
       return;
@@ -168,54 +150,30 @@ export default class ProgramScreen extends React.Component {
 
     this.setState({ isLoading: true });
 
-    if (title) {
-      params.filter_title = title;
-    }
-
-    axios({
-      url: `${ANNICT_API_BASE_URL}/v1/works`,
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${this.state.accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      params: params
-    })
-      .then(response => {
-        this.checkStatus({
-          workIds: _.map(response.data.works, 'id')
-        }).then(workMap => {
-          let works = [];
-          response.data.works.forEach(function(work) {
-            if (workMap[work.id]) {
-              work.status = { kind: workMap[work.id] };
-            } else {
-              work.status = { kind: 'no_select' };
-            }
-            works.push(work);
+    this.annict
+      .fetchWorks({ page, title })
+      .then(({ works, isEnd }) => {
+        if (isRefresh) {
+          this.setState({
+            programs: works,
+            dataSourcePrograms: new ListView.DataSource({
+              rowHasChanged: (r, l) => {
+                r !== l;
+              }
+            }).cloneWithRows(works),
+            isLoading: false,
+            isEnd: isEnd
           });
-          if (isRefresh) {
-            this.setState({
-              programs: works,
-              dataSourcePrograms: new ListView.DataSource({
-                rowHasChanged: (r, l) => {
-                  r !== l;
-                }
-              }).cloneWithRows(works),
-              isLoading: false,
-              isEnd: response.data.works.length === 0
-            });
-          } else {
-            this.setState({
-              programs: this.state.programs.concat(works),
-              dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
-                this.state.programs.concat(works)
-              ),
-              isLoading: false,
-              isEnd: response.data.works.length === 0
-            });
-          }
-        });
+        } else {
+          this.setState({
+            programs: this.state.programs.concat(works),
+            dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
+              this.state.programs.concat(works)
+            ),
+            isLoading: false,
+            isEnd: isEnd
+          });
+        }
       })
       .catch(err => {
         this.setState({ isLoading: false });
@@ -251,10 +209,10 @@ export default class ProgramScreen extends React.Component {
     this.getAccessToken()
       .then(token => {
         this.setState({
-          accessToken: token,
           page: 1,
           isEnd: false
         });
+        this.annict = new Annict({ accessToken: token });
         this.fetchProgram({
           page: 1,
           title: this.state.title,
@@ -376,7 +334,7 @@ export default class ProgramScreen extends React.Component {
   }
 
   render() {
-    if (!this.state.accessToken) {
+    if (!this.annict) {
       return (
         <View>
           <View style={{ padding: 22 }}>

@@ -34,6 +34,8 @@ const IS_DISPLAY_RECORD_COMPLETE_KEY = 'NSDEFAULT@isDisplayRecordComplete';
 import RecordModalScreen from './RecordModalScreen';
 import RecordCompleteModalScreen from './RecordCompleteModalScreen';
 
+import Annict from './annict';
+
 export default class EpisodeScreen extends React.Component {
   static navigationOptions = {
     title: 'quickAnnict',
@@ -49,8 +51,8 @@ export default class EpisodeScreen extends React.Component {
   constructor(props) {
     super(props);
 
+    this.annict = null;
     this.state = {
-      accessToken: '',
       page: 1,
       programs: [],
       isLoading: false,
@@ -90,11 +92,8 @@ export default class EpisodeScreen extends React.Component {
   componentDidMount() {
     const { params } = this.props.navigation.state;
 
-    this.setState({
-      accessToken: params.accessToken
-    });
+    this.annict = new Annict({ accessToken: params.accessToken });
     this.fetchProgram({
-      accessToken: params.accessToken,
       page: this.state.page
     });
   }
@@ -122,30 +121,14 @@ export default class EpisodeScreen extends React.Component {
   }) {
     rowId = parseInt(rowId, 10);
 
-    let postData = {};
-    postData.episode_id = episodeId;
-    if (ratingState) {
-      postData.rating_state = ratingState;
-    }
-    if (comment) {
-      postData.comment = comment;
-    }
-    if (isShareOnTwitter) {
-      postData.share_twitter = 'true';
-    }
-    if (isShareOnFacebook) {
-      postData.share_facebook = 'true';
-    }
-
-    axios({
-      url: `${ANNICT_API_BASE_URL}/v1/me/records`,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.state.accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      data: postData
-    })
+    this.annict
+      .markWatched({
+        episodeId,
+        comment,
+        ratingState,
+        isShareOnTwitter,
+        isShareOnFacebook
+      })
       .then(response => {
         // チェックを付けたのをListViewから消す
         let programs = this.state.programs.slice();
@@ -171,14 +154,7 @@ export default class EpisodeScreen extends React.Component {
         console.error(error);
       });
   }
-  fetchProgram({ accessToken, page, isRefresh, workId }) {
-    let params = {
-      filter_unwatched: true,
-      sort_started_at: 'desc',
-      page: page,
-      filter_started_at_lt: moment().utc().format('YYYY/MM/DD HH:mm')
-    };
-
+  fetchProgram({ page, isRefresh, workId }) {
     // ローディング中は二重に取れないようにする
     if (this.state.isLoading) {
       return;
@@ -191,19 +167,8 @@ export default class EpisodeScreen extends React.Component {
 
     this.setState({ isLoading: true });
 
-    if (workId) {
-      params.filter_work_ids = workId;
-    }
-
-    axios({
-      url: `${ANNICT_API_BASE_URL}/v1/me/programs`,
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      params: params
-    })
+    this.annict
+      .fetchProgram({ page, workId })
       .then(response => {
         const programs = response.data.programs;
         if (isRefresh) {
@@ -244,7 +209,6 @@ export default class EpisodeScreen extends React.Component {
       page: page
     });
     this.fetchProgram({
-      accessToken: this.state.accessToken,
       page: page,
       workId: this.state.workId
     });
@@ -255,7 +219,6 @@ export default class EpisodeScreen extends React.Component {
       workId: workId
     });
     this.fetchProgram({
-      accessToken: this.state.accessToken,
       page: 1,
       workId: workId,
       isRefresh: true
@@ -271,7 +234,6 @@ export default class EpisodeScreen extends React.Component {
       isEnd: false
     });
     this.fetchProgram({
-      accessToken: this.state.accessToken,
       page: 1,
       workId: this.state.workId,
       isRefresh: true
