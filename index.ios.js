@@ -12,6 +12,9 @@ const quickAnnict = TabNavigator(
     },
     Program: {
       screen: require('./js/TabProgramScreen').default
+    },
+    About: {
+      screen: require('./js/AboutScreen').default
     }
   },
   {
