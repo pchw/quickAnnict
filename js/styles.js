@@ -78,6 +78,9 @@ export default StyleSheet.create({
   regularText: {
     fontSize: 12
   },
+  bigText: {
+    fontSize: 15
+  },
   subText: {
     color: NAMARI
   },

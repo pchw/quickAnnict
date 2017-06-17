@@ -164,4 +164,14 @@ export default class Annict {
       data: body
     });
   }
+  me() {
+    return axios({
+      url: `${ANNICT_API_BASE_URL}/v1/me`,
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${this.state.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    });
+  }
 }
