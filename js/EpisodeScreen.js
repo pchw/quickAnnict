@@ -5,7 +5,7 @@ import {
   Button,
   AsyncStorage,
   Image,
-  ListView,
+  FlatList,
   TouchableOpacity,
   Text,
   View,
@@ -66,12 +66,7 @@ export default class EpisodeScreen extends React.Component {
       comment: '',
       ratingState: RATINGS.AVERAGE,
       isDisplayRecordComplete: true,
-      errorMessage: '',
-      dataSourcePrograms: new ListView.DataSource({
-        rowHasChanged: (r, l) => {
-          r !== l;
-        }
-      })
+      errorMessage: ''
     };
 
     AsyncStorage.getItem(IS_DISPLAY_RECORD_COMPLETE_KEY, (err, param) => {
@@ -136,11 +131,6 @@ export default class EpisodeScreen extends React.Component {
         programs.splice(rowId, 1);
 
         this.setState({
-          dataSourcePrograms: new ListView.DataSource({
-            rowHasChanged: (r, l) => {
-              r !== l;
-            }
-          }).cloneWithRows(programs),
           programs: programs,
           isLoading: false,
           errorMessage: ''
@@ -174,11 +164,6 @@ export default class EpisodeScreen extends React.Component {
         const programs = response.data.programs;
         if (isRefresh) {
           this.setState({
-            dataSourcePrograms: new ListView.DataSource({
-              rowHasChanged: (r, l) => {
-                r !== l;
-              }
-            }).cloneWithRows(programs),
             programs: programs,
             isLoading: false,
             errorMessage: '',
@@ -187,9 +172,6 @@ export default class EpisodeScreen extends React.Component {
         } else {
           this.setState({
             programs: this.state.programs.concat(programs),
-            dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
-              this.state.programs.concat(programs)
-            ),
             isLoading: false,
             errorMessage: '',
             isEnd: programs.length === 0
@@ -248,7 +230,9 @@ export default class EpisodeScreen extends React.Component {
     });
   }
 
-  renderRow(program, sectionId, rowId) {
+  renderRow(info) {
+    const program = info.item;
+    const rowId = info.index;
     const work = program.work;
     const episode = program.episode;
     const image = work.images && work.images.facebook.og_image_url
@@ -350,7 +334,7 @@ export default class EpisodeScreen extends React.Component {
   }
 
   renderFooter() {
-    let loadingView;
+    let loadingView = null;
     if (
       this.state.programs.length > 0 &&
       this.state.isLoading &&
@@ -453,19 +437,17 @@ export default class EpisodeScreen extends React.Component {
       <View style={styles.screen}>
         {errorView}
         {modalView}
-        <ListView
-          removeClippedSubviews={false}
-          dataSource={this.state.dataSourcePrograms}
-          renderRow={this.renderRow.bind(this)}
-          renderFooter={this.renderFooter.bind(this)}
+        <FlatList
+          data={this.state.programs}
+          renderItem={this.renderRow.bind(this)}
+          keyExtractor={item => {
+            return `episode-${item.episode.id}`;
+          }}
           onEndReached={this.fetchNext.bind(this)}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.isLoading && !this.state.isEnd}
-              onRefresh={this.reload.bind(this)}
-            />
-          }
-          renderHeader={this.renderHeader.bind(this)}
+          onRefresh={this.reload.bind(this)}
+          refreshing={this.state.isLoading && !this.state.isEnd}
+          ListFooterComponent={this.renderFooter.bind(this)}
+          ListHeaderComponent={this.renderHeader.bind(this)}
         />
       </View>
     );

@@ -9,7 +9,7 @@ import {
   Image,
   AsyncStorage,
   Keyboard,
-  ListView,
+  FlatList,
   View,
   TouchableOpacity,
   Text,
@@ -52,11 +52,6 @@ export default class ProgramScreen extends React.Component {
     this.state = {
       page: 1,
       programs: [],
-      dataSourcePrograms: new ListView.DataSource({
-        rowHasChanged: (r, l) => {
-          r !== l;
-        }
-      }),
       isLoading: false,
       isEnd: false,
       title: ''
@@ -116,20 +111,17 @@ export default class ProgramScreen extends React.Component {
 
   changeStatus({ rowId, workId, isWatch }) {
     rowId = parseInt(rowId, 10);
+    const kind = isWatch ? 'watching' : 'no_select';
     this.annict
       .changeWorkStatus({ workId, isWatch })
       .then(response => {
         // 一覧をコピー
         let programs = this.state.programs.slice();
+
         programs[rowId].status.kind = kind;
 
         this.setState({
           programs: programs,
-          dataSourcePrograms: new ListView.DataSource({
-            rowHasChanged: (r, l) => {
-              r !== l;
-            }
-          }).cloneWithRows(programs),
           isLoading: false
         });
       })
@@ -157,20 +149,12 @@ export default class ProgramScreen extends React.Component {
         if (isRefresh) {
           this.setState({
             programs: works,
-            dataSourcePrograms: new ListView.DataSource({
-              rowHasChanged: (r, l) => {
-                r !== l;
-              }
-            }).cloneWithRows(works),
             isLoading: false,
             isEnd: isEnd
           });
         } else {
           this.setState({
             programs: this.state.programs.concat(works),
-            dataSourcePrograms: this.state.dataSourcePrograms.cloneWithRows(
-              this.state.programs.concat(works)
-            ),
             isLoading: false,
             isEnd: isEnd
           });
@@ -225,8 +209,9 @@ export default class ProgramScreen extends React.Component {
       });
   }
 
-  renderRow(program, sectionId, rowId) {
-    const work = program;
+  renderRow(info) {
+    const work = info.item;
+    const rowId = info.index;
     let image;
     if (work.images && work.images.facebook.og_image_url) {
       image = (
@@ -335,7 +320,7 @@ export default class ProgramScreen extends React.Component {
   }
 
   renderFooter() {
-    let loadingView;
+    let loadingView = null;
     if (
       this.state.programs.length > 0 &&
       this.state.isLoading &&
@@ -380,19 +365,17 @@ export default class ProgramScreen extends React.Component {
           style={[styles.programSearch, { flex: 1 }]}
         />
         <View style={{ flex: 10 }}>
-          <ListView
-            removeClippedSubviews={false}
-            dataSource={this.state.dataSourcePrograms}
-            renderRow={this.renderRow.bind(this)}
-            renderFooter={this.renderFooter.bind(this)}
+          <FlatList
+            data={this.state.programs}
+            renderItem={this.renderRow.bind(this)}
+            keyExtractor={item => {
+              return `program-${item.id}`;
+            }}
+            ListHeaderComponent={this.renderHeader.bind(this)}
+            ListFooterComponent={this.renderFooter.bind(this)}
+            refreshing={this.state.isLoading && !this.state.isEnd}
+            onRefresh={this.reload.bind(this)}
             onEndReached={this.fetchNext.bind(this)}
-            refreshControl={
-              <RefreshControl
-                refreshing={this.state.isLoading && !this.state.isEnd}
-                onRefresh={this.reload.bind(this)}
-              />
-            }
-            renderHeader={this.renderHeader.bind(this)}
           />
         </View>
       </View>

@@ -17,7 +17,8 @@ const quickAnnict = TabNavigator(
   {
     containerConfig: {
       URIPrefix: 'qani://'
-    }
+    },
+    lazy: true
   }
 );
 
