@@ -3,6 +3,13 @@ import { StyleSheet } from 'react-native';
 import { ANNICT_COLOR, GOFUN, NAMARI } from './colors';
 
 export default StyleSheet.create({
+  header: {
+    backgroundColor: ANNICT_COLOR,
+    justifyContent: 'space-between',
+    padding: 15,
+    fontWeight: 'bold',
+    fontSize: 18
+  },
   resetFilterHeader: {
     backgroundColor: ANNICT_COLOR,
     flex: 1
