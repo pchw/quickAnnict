@@ -108,7 +108,7 @@ export default class EpisodeScreen extends React.Component {
           let fetchParams = { page: this.state.page };
           if (params && params.workId) {
             fetchParams.workId = params.workId;
-            this.setState({workId: params.workId});
+            this.setState({ workId: params.workId });
           }
           this.fetchProgram(fetchParams);
         }
