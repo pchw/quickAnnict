@@ -57,8 +57,7 @@ export default StyleSheet.create({
     height: 50,
     width: 50,
     borderWidth: 0,
-    borderRadius: 5,
-    flex: 1
+    borderRadius: 5
   },
   programRowNoImage: {
     borderWidth: 1,
@@ -69,7 +68,7 @@ export default StyleSheet.create({
   programRowBody: {
     marginLeft: 10,
     flexDirection: 'column',
-    flex: 4
+    flex: 1
   },
   programRowAction: {
     flex: 2,

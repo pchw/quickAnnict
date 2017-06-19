@@ -21,7 +21,7 @@ import moment from 'moment';
 import { Ionicons } from '@expo/vector-icons';
 
 import config from '../config';
-const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY } = config;
+const { OAUTH_ACCESS_TOKEN_KEY, ACCESS_TOKEN } = config;
 import styles from './styles';
 import { ANNICT_COLOR } from './colors';
 import { RATINGS } from './ratings';
@@ -85,13 +85,37 @@ export default class EpisodeScreen extends React.Component {
     });
   }
 
+  getAccessToken() {
+    return new Promise((resolve, reject) => {
+      AsyncStorage.getItem(OAUTH_ACCESS_TOKEN_KEY, (err, token) => {
+        if (token || ACCESS_TOKEN) {
+          return resolve(token || ACCESS_TOKEN);
+        } else {
+          return reject(new Error('no token'));
+        }
+      });
+    });
+  }
+
   componentDidMount() {
     const { params } = this.props.navigation.state;
 
-    this.annict = new Annict({ accessToken: params.accessToken });
-    this.fetchProgram({
-      page: this.state.page
-    });
+    this.getAccessToken()
+      .then(token => {
+        if (token) {
+          this.annict = new Annict({ accessToken: token });
+
+          let fetchParams = { page: this.state.page };
+          if (params && params.workId) {
+            fetchParams.workId = params.workId;
+            this.setState({ workId: params.workId });
+          }
+          this.fetchProgram(fetchParams);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+      });
   }
   logout() {
     AsyncStorage.removeItem(OAUTH_ACCESS_TOKEN_KEY, () => {

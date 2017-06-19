@@ -209,6 +209,22 @@ export default class ProgramScreen extends React.Component {
       });
   }
 
+  navigateEpisode(workId) {
+    this.props.navigation.dispatch(
+      NavigationActions.reset({
+        index: 0,
+        actions: [
+          NavigationActions.navigate({
+            routeName: 'Episode',
+            params: {
+              workId: workId
+            }
+          })
+        ]
+      })
+    );
+  }
+
   renderRow(info) {
     const work = info.item;
     const rowId = info.index;
@@ -270,11 +286,18 @@ export default class ProgramScreen extends React.Component {
 
     return (
       <View key={`program-${work.id}`} style={styles.programRow}>
-        {image}
-        <View style={styles.programRowBody}>
-          <Text>{work.title}</Text>
-          <Text style={styles.subText}>Watchers: {work.watchers_count}</Text>
-        </View>
+        <TouchableOpacity
+          style={{ flex: 4, flexDirection: 'row' }}
+          onPress={() => {
+            this.navigateEpisode(work.id);
+          }}
+        >
+          {image}
+          <View style={styles.programRowBody}>
+            <Text>{work.title}</Text>
+            <Text style={styles.subText}>Watchers: {work.watchers_count}</Text>
+          </View>
+        </TouchableOpacity>
         <View style={styles.programRowAction}>
           {button}
         </View>

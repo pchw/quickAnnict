@@ -101,7 +101,7 @@ export default class AboutScreen extends React.Component {
                 <MaterialIcons name="update" size={50} />
                 <View style={{ alignItems: 'center', marginLeft: 20 }}>
                   <Text style={[styles.bigText, styles.boldText]}>
-                    2017/06/18
+                    2017/06/19
                   </Text>
                   <Text style={styles.subText}>Updated</Text>
                 </View>

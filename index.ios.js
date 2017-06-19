@@ -11,7 +11,7 @@ const quickAnnict = TabNavigator(
       path: /^callback/
     },
     Program: {
-      screen: require('./js/TabProgramScreen').default
+      screen: require('./js/ProgramScreen').default
     },
     About: {
       screen: require('./js/AboutScreen').default
