@@ -1,7 +1,13 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text, Image, AsyncStorage, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  AsyncStorage,
+  TouchableOpacity
+} from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import { Constants, Util } from 'expo';
 import { Ionicons, Octicons, MaterialIcons } from '@expo/vector-icons';
@@ -89,14 +95,11 @@ export default class AboutScreen extends React.Component {
   render() {
     return (
       <View style={{ flex: 1, alignItems: 'stretch' }}>
-        <Text
-          style={[
-            styles.header,
-            { textAlign: 'center', paddingTop: 15 + Constants.statusBarHeight }
-          ]}
-        >
-          quickAnnict
-        </Text>
+        <View style={styles.header}>
+          <Text style={[styles.headerText, { textAlign: 'center' }]}>
+            quickAnnict
+          </Text>
+        </View>
         <View style={{ margin: 20 }}>
           <Text style={[styles.subText, { marginBottom: 5 }]}>App info</Text>
           <View style={{ marginBottom: 20, flexDirection: 'row' }}>
@@ -117,7 +120,7 @@ export default class AboutScreen extends React.Component {
                 <MaterialIcons name="update" size={50} />
                 <View style={{ alignItems: 'center', marginLeft: 20 }}>
                   <Text style={[styles.bigText, styles.boldText]}>
-                    2017/06/25
+                    2017/06/26
                   </Text>
                   <Text style={styles.subText}>Updated</Text>
                 </View>
@@ -162,8 +165,11 @@ export default class AboutScreen extends React.Component {
             <Text>{this.state.name}</Text>
             <Text>{this.state.description}</Text>
           </View>
-          <View style={{marginTop: 20}}>
-            <TouchableOpacity style={styles.regularButton} onPress={this.logout.bind(this)}>
+          <View style={{ marginTop: 20 }}>
+            <TouchableOpacity
+              style={styles.regularButton}
+              onPress={this.logout.bind(this)}
+            >
               <Text>Logout</Text>
             </TouchableOpacity>
           </View>

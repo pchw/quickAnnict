@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { Constants } from 'expo';
 
 import { ANNICT_COLOR, GOFUN, NAMARI } from './colors';
 
@@ -7,8 +8,14 @@ export default StyleSheet.create({
     backgroundColor: ANNICT_COLOR,
     justifyContent: 'space-between',
     padding: 15,
-    fontWeight: 'bold',
-    fontSize: 18
+    paddingBottom: 10,
+    paddingTop: 15 + Constants.statusBarHeight
+  },
+  headerText: {
+    fontWeight: 'bold'
+  },
+  headerItem: {
+    flex: 1
   },
   resetFilterHeader: {
     backgroundColor: ANNICT_COLOR,
