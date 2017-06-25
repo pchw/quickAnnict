@@ -1,8 +1,9 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { View, Text, Image, AsyncStorage } from 'react-native';
-import { Constants } from 'expo';
+import { View, Text, Image, AsyncStorage, TouchableOpacity } from 'react-native';
+import { NavigationActions } from 'react-navigation';
+import { Constants, Util } from 'expo';
 import { Ionicons, Octicons, MaterialIcons } from '@expo/vector-icons';
 
 import _ from 'lodash';
@@ -33,6 +34,21 @@ export default class AboutScreen extends React.Component {
       recordsCount: 0
     };
     this.annict = null;
+  }
+
+  logout() {
+    AsyncStorage.removeItem(OAUTH_ACCESS_TOKEN_KEY, () => {
+      this.props.navigation.dispatch(
+        NavigationActions.reset({
+          index: 0,
+          actions: [
+            NavigationActions.navigate({
+              routeName: 'Episode'
+            })
+          ]
+        })
+      );
+    });
   }
 
   getAccessToken() {
@@ -101,7 +117,7 @@ export default class AboutScreen extends React.Component {
                 <MaterialIcons name="update" size={50} />
                 <View style={{ alignItems: 'center', marginLeft: 20 }}>
                   <Text style={[styles.bigText, styles.boldText]}>
-                    2017/06/19
+                    2017/06/20
                   </Text>
                   <Text style={styles.subText}>Updated</Text>
                 </View>
@@ -145,6 +161,11 @@ export default class AboutScreen extends React.Component {
           <View>
             <Text>{this.state.name}</Text>
             <Text>{this.state.description}</Text>
+          </View>
+          <View style={{marginTop: 20}}>
+            <TouchableOpacity style={styles.regularButton} onPress={this.logout.bind(this)}>
+              <Text>Logout</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>

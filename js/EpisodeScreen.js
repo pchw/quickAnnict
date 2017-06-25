@@ -117,20 +117,7 @@ export default class EpisodeScreen extends React.Component {
         console.error(err);
       });
   }
-  logout() {
-    AsyncStorage.removeItem(OAUTH_ACCESS_TOKEN_KEY, () => {
-      this.props.navigation.dispatch(
-        NavigationActions.reset({
-          index: 0,
-          actions: [
-            NavigationActions.navigate({
-              routeName: 'Home'
-            })
-          ]
-        })
-      );
-    });
-  }
+
   markWatched({
     episodeId,
     rowId,
