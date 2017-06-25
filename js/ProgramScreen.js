@@ -205,7 +205,7 @@ export default class ProgramScreen extends React.Component {
       page: 1,
       title: this.state.title,
       isRefresh: true,
-      season: this.state.season
+      season: THIS_SEASON
     });
   }
 
@@ -220,7 +220,8 @@ export default class ProgramScreen extends React.Component {
         this.fetchProgram({
           page: 1,
           title: this.state.title,
-          isRefresh: true
+          isRefresh: true,
+          season: this.state.season
         });
       })
       .catch(err => {
