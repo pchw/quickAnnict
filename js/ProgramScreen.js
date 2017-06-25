@@ -30,7 +30,7 @@ const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY, ACCESS_TOKEN } = config;
 import { ANNICT_COLOR, GUNJYO } from './colors';
 
 import { Ionicons } from '@expo/vector-icons';
-import { Constants } from 'expo';
+import { Constants, WebBrowser } from 'expo';
 
 import Annict from './annict';
 
@@ -274,7 +274,7 @@ export default class ProgramScreen extends React.Component {
     if (work.status.kind === 'watching') {
       button = (
         <TouchableOpacity
-          style={[styles.regularButton, { backgroundColor: GUNJYO }]}
+          style={[styles.regularButton, { backgroundColor: GUNJYO, flex: 1 }]}
           onPress={() => {
             this.changeStatus.bind(this)({
               rowId: rowId,
@@ -289,7 +289,7 @@ export default class ProgramScreen extends React.Component {
     } else {
       button = (
         <TouchableOpacity
-          style={[styles.regularButton]}
+          style={[styles.regularButton, { flex: 1 }]}
           onPress={() => {
             this.changeStatus.bind(this)({
               rowId: rowId,
@@ -303,22 +303,49 @@ export default class ProgramScreen extends React.Component {
       );
     }
 
-    return (
-      <View key={`program-${work.id}`} style={styles.programRow}>
+    let officialButton;
+    if (work.official_site_url) {
+      officialButton = (
         <TouchableOpacity
-          style={{ flex: 4, flexDirection: 'row' }}
+          style={[styles.regularButton, { flex: 1 }]}
           onPress={() => {
-            this.navigateEpisode(work.id);
+            WebBrowser.openBrowserAsync(work.official_site_url);
           }}
         >
-          {image}
-          <View style={styles.programRowBody}>
-            <Text>{work.title}</Text>
-            <Text style={styles.subText}>Watchers: {work.watchers_count}</Text>
-          </View>
+          <Text style={styles.regularText}>公式サイト</Text>
         </TouchableOpacity>
-        <View style={styles.programRowAction}>
-          {button}
+      );
+    } else {
+      officialButton = <Text />;
+    }
+
+    return (
+      <View key={`program-${work.id}`}>
+        <View style={styles.programRow}>
+          <View style={{ flex: 1, flexDirection: 'row' }}>
+            {image}
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                style={styles.programRowBody}
+                onPress={() => {
+                  this.navigateEpisode(work.id);
+                }}
+              >
+                <Text>{work.title}</Text>
+                <Text style={styles.subText}>
+                  Watchers: {work.watchers_count}
+                </Text>
+              </TouchableOpacity>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={styles.programRowAction}>
+                  {officialButton}
+                </View>
+                <View style={styles.programRowAction}>
+                  {button}
+                </View>
+              </View>
+            </View>
+          </View>
         </View>
 
       </View>

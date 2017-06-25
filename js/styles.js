@@ -78,8 +78,9 @@ export default StyleSheet.create({
     flex: 1
   },
   programRowAction: {
-    flex: 2,
-    alignItems: 'center'
+    flex: 1,
+    marginRight: 5,
+    marginLeft: 5
   },
   regularText: {
     fontSize: 12
@@ -92,6 +93,8 @@ export default StyleSheet.create({
   },
   regularButton: {
     padding: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
     borderRadius: 5,
     borderWidth: 0,
     backgroundColor: ANNICT_COLOR,
