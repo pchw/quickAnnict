@@ -80,7 +80,7 @@ export default class Annict {
     });
   }
 
-  fetchWorks({ page, title }) {
+  fetchWorks({ page, title, season }) {
     let params = {
       sort_season: 'desc',
       sort_watchers_count: 'desc',
@@ -89,6 +89,10 @@ export default class Annict {
 
     if (title) {
       params.filter_title = title;
+    }
+
+    if (season) {
+      params.filter_season = season;
     }
 
     return new Promise((resolve, reject) => {

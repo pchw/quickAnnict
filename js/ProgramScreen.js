@@ -30,8 +30,11 @@ const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY, ACCESS_TOKEN } = config;
 import { ANNICT_COLOR, GUNJYO } from './colors';
 
 import { Ionicons } from '@expo/vector-icons';
+import { Constants, WebBrowser } from 'expo';
 
 import Annict from './annict';
+
+const THIS_SEASON = '2017-summer';
 
 export default class ProgramScreen extends React.Component {
   static navigationOptions = {
@@ -54,7 +57,8 @@ export default class ProgramScreen extends React.Component {
       programs: [],
       isLoading: false,
       isEnd: false,
-      title: ''
+      title: '',
+      season: ''
     };
   }
 
@@ -130,7 +134,7 @@ export default class ProgramScreen extends React.Component {
       });
   }
 
-  fetchProgram({ page, isRefresh, title }) {
+  fetchProgram({ page, isRefresh, title, season }) {
     // ローディング中は二重に取れないようにする
     if (this.state.isLoading) {
       return;
@@ -144,7 +148,7 @@ export default class ProgramScreen extends React.Component {
     this.setState({ isLoading: true });
 
     this.annict
-      .fetchWorks({ page, title })
+      .fetchWorks({ page, title, season })
       .then(({ works, isEnd }) => {
         if (isRefresh) {
           this.setState({
@@ -172,7 +176,8 @@ export default class ProgramScreen extends React.Component {
     });
     this.fetchProgram({
       page: page,
-      title: this.state.title
+      title: this.state.title,
+      season: this.state.season
     });
   }
   filterWorks(title) {
@@ -183,11 +188,39 @@ export default class ProgramScreen extends React.Component {
     this.fetchProgram({
       page: 1,
       title: title,
-      isRefresh: true
+      isRefresh: true,
+      season: this.state.season
     });
   }
   resetFilter() {
     this.filterWorks('');
+  }
+  filterSeason() {
+    if (this.state.season) {
+      // season絞込を解除
+      this.setState({
+        page: 1,
+        season: ''
+      });
+      this.fetchProgram({
+        page: 1,
+        title: this.state.title,
+        isRefresh: true
+      });
+    } else {
+      // season絞込を設定
+      this.setState({
+        page: 1,
+        season: THIS_SEASON
+      });
+
+      this.fetchProgram({
+        page: 1,
+        title: this.state.title,
+        isRefresh: true,
+        season: THIS_SEASON
+      });
+    }
   }
 
   reload() {
@@ -201,7 +234,8 @@ export default class ProgramScreen extends React.Component {
         this.fetchProgram({
           page: 1,
           title: this.state.title,
-          isRefresh: true
+          isRefresh: true,
+          season: this.state.season
         });
       })
       .catch(err => {
@@ -255,7 +289,7 @@ export default class ProgramScreen extends React.Component {
     if (work.status.kind === 'watching') {
       button = (
         <TouchableOpacity
-          style={[styles.regularButton, { backgroundColor: GUNJYO }]}
+          style={[styles.regularButton, { backgroundColor: GUNJYO, flex: 1 }]}
           onPress={() => {
             this.changeStatus.bind(this)({
               rowId: rowId,
@@ -270,7 +304,7 @@ export default class ProgramScreen extends React.Component {
     } else {
       button = (
         <TouchableOpacity
-          style={[styles.regularButton]}
+          style={[styles.regularButton, { flex: 1 }]}
           onPress={() => {
             this.changeStatus.bind(this)({
               rowId: rowId,
@@ -284,22 +318,49 @@ export default class ProgramScreen extends React.Component {
       );
     }
 
-    return (
-      <View key={`program-${work.id}`} style={styles.programRow}>
+    let officialButton;
+    if (work.official_site_url) {
+      officialButton = (
         <TouchableOpacity
-          style={{ flex: 4, flexDirection: 'row' }}
+          style={[styles.regularButton, { flex: 1 }]}
           onPress={() => {
-            this.navigateEpisode(work.id);
+            WebBrowser.openBrowserAsync(work.official_site_url);
           }}
         >
-          {image}
-          <View style={styles.programRowBody}>
-            <Text>{work.title}</Text>
-            <Text style={styles.subText}>Watchers: {work.watchers_count}</Text>
-          </View>
+          <Text style={styles.regularText}>公式サイト</Text>
         </TouchableOpacity>
-        <View style={styles.programRowAction}>
-          {button}
+      );
+    } else {
+      officialButton = <Text />;
+    }
+
+    return (
+      <View key={`program-${work.id}`}>
+        <View style={styles.programRow}>
+          <View style={{ flex: 1, flexDirection: 'row' }}>
+            {image}
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                style={styles.programRowBody}
+                onPress={() => {
+                  this.navigateEpisode(work.id);
+                }}
+              >
+                <Text>{work.title}</Text>
+                <Text style={styles.subText}>
+                  Watchers: {work.watchers_count}
+                </Text>
+              </TouchableOpacity>
+              <View style={{ flexDirection: 'row' }}>
+                <View style={styles.programRowAction}>
+                  {officialButton}
+                </View>
+                <View style={styles.programRowAction}>
+                  {button}
+                </View>
+              </View>
+            </View>
+          </View>
         </View>
 
       </View>
@@ -373,8 +434,39 @@ export default class ProgramScreen extends React.Component {
         </View>
       );
     }
+
+    let filterText;
+    if (this.state.season) {
+      filterText = (
+        <View key={uuid()} style={{backgroundColor: ANNICT_COLOR, padding: 5}}>
+          <Text>2017夏アニメで絞込中</Text>
+          </View>
+          );
+    }
+
     return (
       <View style={styles.screen}>
+        <View style={styles.header}>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={styles.headerItem}>
+              <Text />
+            </View>
+            <View style={styles.headerItem}>
+              <Text style={[styles.headerText, { textAlign: 'center' }]}>
+                quickAnnict
+              </Text>
+            </View>
+            <View style={styles.headerItem}>
+              <TouchableOpacity
+                style={{ alignSelf: 'flex-end' }}
+                onPress={this.filterSeason.bind(this)}
+              >
+                <Text>{this.state.season?'解除':'2017夏アニメ'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+        {filterText}
         <TextInput
           value={this.state.title}
           placeholder="アニメタイトルで絞込み"
