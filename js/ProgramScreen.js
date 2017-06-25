@@ -196,17 +196,31 @@ export default class ProgramScreen extends React.Component {
     this.filterWorks('');
   }
   filterSeason() {
-    this.setState({
-      page: 1,
-      season: THIS_SEASON
-    });
+    if (this.state.season) {
+      // season絞込を解除
+      this.setState({
+        page: 1,
+        season: ''
+      });
+      this.fetchProgram({
+        page: 1,
+        title: this.state.title,
+        isRefresh: true
+      });
+    } else {
+      // season絞込を設定
+      this.setState({
+        page: 1,
+        season: THIS_SEASON
+      });
 
-    this.fetchProgram({
-      page: 1,
-      title: this.state.title,
-      isRefresh: true,
-      season: THIS_SEASON
-    });
+      this.fetchProgram({
+        page: 1,
+        title: this.state.title,
+        isRefresh: true,
+        season: THIS_SEASON
+      });
+    }
   }
 
   reload() {
@@ -420,6 +434,16 @@ export default class ProgramScreen extends React.Component {
         </View>
       );
     }
+
+    let filterText;
+    if (this.state.season) {
+      filterText = (
+        <View key={uuid()} style={{backgroundColor: ANNICT_COLOR, padding: 5}}>
+          <Text>2017夏アニメで絞込中</Text>
+          </View>
+          );
+    }
+
     return (
       <View style={styles.screen}>
         <View style={styles.header}>
@@ -437,11 +461,12 @@ export default class ProgramScreen extends React.Component {
                 style={{ alignSelf: 'flex-end' }}
                 onPress={this.filterSeason.bind(this)}
               >
-                <Text>2017夏アニメ</Text>
+                <Text>{this.state.season?'解除':'2017夏アニメ'}</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
+        {filterText}
         <TextInput
           value={this.state.title}
           placeholder="アニメタイトルで絞込み"
