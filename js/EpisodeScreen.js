@@ -113,6 +113,16 @@ export default class EpisodeScreen extends React.Component {
         }
       })
       .catch(err => {
+        this.props.navigation.dispatch(
+          NavigationActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({
+                routeName: 'Home'
+              })
+            ]
+          })
+        );
         console.error(err);
       });
   }

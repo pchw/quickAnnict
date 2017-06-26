@@ -84,6 +84,7 @@ export default class HomeScreen extends React.Component {
       })
       .catch(err => {
         console.error(err);
+        return this.navigateOAuthScreen();
       });
   }
   getToken(code) {
