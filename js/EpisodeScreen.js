@@ -44,9 +44,8 @@ export default class EpisodeScreen extends React.Component {
       backgroundColor: ANNICT_COLOR
     },
     tabBarLabel: '視聴記録',
-    tabBarIcon: ({ tintColor }) => (
+    tabBarIcon: ({ tintColor }) =>
       <Ionicons name="ios-eye" size={30} color={tintColor} />
-    )
   };
 
   constructor(props) {

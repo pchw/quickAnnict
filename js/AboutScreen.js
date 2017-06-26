@@ -42,9 +42,8 @@ const releases = [
 export default class AboutScreen extends React.Component {
   static navigationOptions = {
     tabBarLabel: '情報',
-    tabBarIcon: ({ tintColor }) => (
+    tabBarIcon: ({ tintColor }) =>
       <Ionicons name="ios-information-circle" size={30} color={tintColor} />
-    )
   };
 
   constructor(props) {

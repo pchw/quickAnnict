@@ -11,6 +11,7 @@ import {
 import { NavigationActions } from 'react-navigation';
 
 import axios from 'axios';
+import qs from 'query-string';
 
 import config from '../config';
 const {
@@ -65,28 +66,25 @@ export default class HomeScreen extends React.Component {
     }
   }
   _handleRedirect(event) {
-    if (!event.url.includes('callback')) {
-      return;
-    }
     this.setState({ isShowOAuth: false });
 
-    const [, queryString] = event.url.split('?');
-    const responseObj = queryString.split('&').reduce((map, pair) => {
-      const [key, value] = queryString.split('=');
-      map[key] = value;
-      return map;
-    }, {});
+    let queryString = event.url.replace(REDIRECT_URI, '');
+    const responseObj = qs.parse(queryString);
 
     const code = responseObj.code;
 
-    this.getToken(code).then(response => {
-      const token = response.data.access_token;
+    this.getToken(code)
+      .then(response => {
+        const token = response.data.access_token;
 
-      // Keychainに保存
-      AsyncStorage.setItem(OAUTH_ACCESS_TOKEN_KEY, token, () => {
-        this.navigateMainScreen(token);
+        // Keychainに保存
+        AsyncStorage.setItem(OAUTH_ACCESS_TOKEN_KEY, token, () => {
+          this.navigateMainScreen(token);
+        });
+      })
+      .catch(err => {
+        console.error(err);
       });
-    });
   }
   getToken(code) {
     return axios({
