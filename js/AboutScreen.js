@@ -6,7 +6,8 @@ import {
   Text,
   Image,
   AsyncStorage,
-  TouchableOpacity
+  TouchableOpacity,
+  FlatList
 } from 'react-native';
 import { NavigationActions } from 'react-navigation';
 import { Constants, Util } from 'expo';
@@ -19,6 +20,24 @@ import styles from './styles';
 import config from '../config';
 const { OAUTH_ACCESS_TOKEN_KEY, ACCESS_TOKEN } = config;
 import Annict from './annict';
+
+const releases = [
+  {
+    id: '2017-06-26-1',
+    date: '2017/06/26',
+    body: '夏アニメで絞りこめるようになりました'
+  },
+  {
+    id: '2017-06-26-2',
+    date: '2017/06/26',
+    body: '内部ライブラリをアップデートしました'
+  },
+  {
+    id: '2017-06-20-1',
+    date: '2017/06/20',
+    body: 'ログアウトボタンを追加しました'
+  }
+];
 
 export default class AboutScreen extends React.Component {
   static navigationOptions = {
@@ -90,6 +109,16 @@ export default class AboutScreen extends React.Component {
       .catch(err => {
         console.error(err);
       });
+  }
+
+  renderRow(info) {
+    const release = info.item;
+    return (
+      <View style={{ marginBottom: 5 }}>
+        <Text>{release.date}</Text>
+        <Text style={{ marginLeft: 5 }}>{release.body}</Text>
+      </View>
+    );
   }
 
   render() {
@@ -173,6 +202,16 @@ export default class AboutScreen extends React.Component {
               <Text>Logout</Text>
             </TouchableOpacity>
           </View>
+          <Text style={[styles.subText, { marginTop: 20, marginBottom: 5 }]}>
+            Releases
+          </Text>
+          <FlatList
+            data={releases}
+            renderItem={this.renderRow.bind(this)}
+            keyExtractor={item => {
+              return `releases-${item.id}`;
+            }}
+          />
         </View>
       </View>
     );
