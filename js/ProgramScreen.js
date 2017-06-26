@@ -438,10 +438,13 @@ export default class ProgramScreen extends React.Component {
     let filterText;
     if (this.state.season) {
       filterText = (
-        <View key={uuid()} style={{backgroundColor: ANNICT_COLOR, padding: 5}}>
+        <View
+          key={uuid()}
+          style={{ backgroundColor: ANNICT_COLOR, padding: 5 }}
+        >
           <Text>2017夏アニメで絞込中</Text>
-          </View>
-          );
+        </View>
+      );
     }
 
     return (
@@ -461,7 +464,7 @@ export default class ProgramScreen extends React.Component {
                 style={{ alignSelf: 'flex-end' }}
                 onPress={this.filterSeason.bind(this)}
               >
-                <Text>{this.state.season?'解除':'2017夏アニメ'}</Text>
+                <Text>{this.state.season ? '解除' : '2017夏アニメ'}</Text>
               </TouchableOpacity>
             </View>
           </View>

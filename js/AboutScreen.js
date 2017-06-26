@@ -36,7 +36,7 @@ const releases = [
     id: '2017-06-20-1',
     date: '2017/06/20',
     body: 'ログアウトボタンを追加しました'
-  },
+  }
 ];
 
 export default class AboutScreen extends React.Component {
@@ -111,14 +111,14 @@ export default class AboutScreen extends React.Component {
       });
   }
 
-  renderRow(info){
+  renderRow(info) {
     const release = info.item;
     return (
-      <View style={{marginBottom: 5}}>
-      <Text>{release.date}</Text>
-      <Text style={{marginLeft: 5}}>{release.body}</Text>
+      <View style={{ marginBottom: 5 }}>
+        <Text>{release.date}</Text>
+        <Text style={{ marginLeft: 5 }}>{release.body}</Text>
       </View>
-      );
+    );
   }
 
   render() {
@@ -202,14 +202,16 @@ export default class AboutScreen extends React.Component {
               <Text>Logout</Text>
             </TouchableOpacity>
           </View>
-          <Text style={[styles.subText, { marginTop: 20, marginBottom: 5 }]}>Releases</Text>
-          <FlatList 
+          <Text style={[styles.subText, { marginTop: 20, marginBottom: 5 }]}>
+            Releases
+          </Text>
+          <FlatList
             data={releases}
             renderItem={this.renderRow.bind(this)}
             keyExtractor={item => {
               return `releases-${item.id}`;
             }}
-            />
+          />
         </View>
       </View>
     );
