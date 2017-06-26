@@ -7,8 +7,7 @@ import { StackNavigator, TabNavigator } from 'react-navigation';
 const quickAnnict = TabNavigator(
   {
     Episode: {
-      screen: require('./js/TabHomeScreen').default,
-      path: /^callback/
+      screen: require('./js/TabHomeScreen').default
     },
     Program: {
       screen: require('./js/ProgramScreen').default
@@ -18,9 +17,6 @@ const quickAnnict = TabNavigator(
     }
   },
   {
-    containerConfig: {
-      URIPrefix: 'qani://'
-    },
     lazy: true
   }
 );

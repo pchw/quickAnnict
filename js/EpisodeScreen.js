@@ -44,9 +44,8 @@ export default class EpisodeScreen extends React.Component {
       backgroundColor: ANNICT_COLOR
     },
     tabBarLabel: '視聴記録',
-    tabBarIcon: ({ tintColor }) => (
+    tabBarIcon: ({ tintColor }) =>
       <Ionicons name="ios-eye" size={30} color={tintColor} />
-    )
   };
 
   constructor(props) {
@@ -114,6 +113,16 @@ export default class EpisodeScreen extends React.Component {
         }
       })
       .catch(err => {
+        this.props.navigation.dispatch(
+          NavigationActions.reset({
+            index: 0,
+            actions: [
+              NavigationActions.navigate({
+                routeName: 'Home'
+              })
+            ]
+          })
+        );
         console.error(err);
       });
   }

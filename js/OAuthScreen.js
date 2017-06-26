@@ -1,7 +1,14 @@
 'use strict';
 
 import React, { Component } from 'react';
-import { WebView, Modal, Text, View, TouchableOpacity } from 'react-native';
+import {
+  WebView,
+  Modal,
+  Text,
+  View,
+  TouchableOpacity,
+  Linking
+} from 'react-native';
 
 import qs from 'qs';
 import config from '../config';
@@ -9,10 +16,6 @@ import config from '../config';
 const { OAUTH_CLIENT_ID, ANNICT_OAUTH_AUTHORIZE_URL, REDIRECT_URI } = config;
 
 export default class OAuthScreen extends React.Component {
-  static navigationOptions = {
-    title: 'quickAnnict'
-  };
-
   constructor(props) {
     super(props);
 

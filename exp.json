@@ -21,7 +21,7 @@
   "ios": {
     "isRemoteJSEnabled": true,
     "bundleIdentifier": "com.phosphoricholic.quickAnnict",
-    "buildNumber": "1"
+    "buildNumber": "2"
   },
   "scheme": "qani"
 }

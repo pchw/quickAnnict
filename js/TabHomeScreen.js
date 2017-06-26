@@ -3,22 +3,14 @@ import { AppRegistry } from 'react-native';
 
 import { StackNavigator } from 'react-navigation';
 
-export default StackNavigator(
-  {
-    Home: {
-      screen: require('./HomeScreen').default,
-      path: /^callback/
-    },
-    Episode: {
-      screen: require('./EpisodeScreen').default
-    },
-    Oauth: {
-      screen: require('./OAuthScreen').default
-    }
+export default StackNavigator({
+  Home: {
+    screen: require('./HomeScreen').default
   },
-  {
-    containerConfig: {
-      URIPrefix: 'qani://'
-    }
+  Episode: {
+    screen: require('./EpisodeScreen').default
+  },
+  Oauth: {
+    screen: require('./OAuthScreen').default
   }
-);
+});
