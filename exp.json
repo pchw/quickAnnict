@@ -4,7 +4,7 @@
   "slug": "quickannict",
   "privacy": "unlisted",
   "sdkVersion": "18.0.0",
-  "version": "1.9.5",
+  "version": "1.9.6",
   "orientation": "portrait",
   "primaryColor": "#cccccc",
   "icon": "https://cloud.githubusercontent.com/assets/1183484/26401156/77228340-40bf-11e7-9275-f3b85359d969.png",
@@ -21,7 +21,7 @@
   "ios": {
     "isRemoteJSEnabled": true,
     "bundleIdentifier": "com.phosphoricholic.quickAnnict",
-    "buildNumber": "2"
+    "buildNumber": "1"
   },
   "scheme": "qani"
 }

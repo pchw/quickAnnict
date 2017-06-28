@@ -23,6 +23,11 @@ import Annict from './annict';
 
 const releases = [
   {
+    id: '2017-06-28-1',
+    date: '2017/06/28',
+    body: '視聴状態を見てる以外も選べるようになりました'
+  },
+  {
     id: '2017-06-26-1',
     date: '2017/06/26',
     body: '夏アニメで絞りこめるようになりました'
@@ -148,7 +153,7 @@ export default class AboutScreen extends React.Component {
                 <MaterialIcons name="update" size={50} />
                 <View style={{ alignItems: 'center', marginLeft: 20 }}>
                   <Text style={[styles.bigText, styles.boldText]}>
-                    2017/06/26
+                    2017/06/28
                   </Text>
                   <Text style={styles.subText}>Updated</Text>
                 </View>
