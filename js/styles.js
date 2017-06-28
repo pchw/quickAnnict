@@ -115,5 +115,20 @@ export default StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: GOFUN
+  },
+  selectedSegment: {
+    padding: 5,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderColor: ANNICT_COLOR,
+    backgroundColor: 'white',
+    alignItems: 'center'
+  },
+  unSelectedSegment: {
+    padding: 5,
+    paddingTop: 10,
+    paddingBottom: 10,
+    alignItems: 'center'
   }
 });

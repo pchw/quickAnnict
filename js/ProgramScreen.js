@@ -286,28 +286,15 @@ export default class ProgramScreen extends React.Component {
     }
 
     let buttons = [];
-    const selectedStyle = {
-      padding: 5,
-      paddingTop: 10,
-      paddingBottom: 10,
-      borderBottomWidth: 1,
-      borderColor: ANNICT_COLOR,
-      backgroundColor: 'white',
-      alignItems: 'center'
-    };
-    const unselectedStyle = {
-      padding: 5,
-      paddingTop: 10,
-      paddingBottom: 10,
-      alignItems: 'center'
-    };
     const STATUS_TABLE = this.annict.STATUS_TABLE;
     Object.keys(STATUS_TABLE).forEach(status => {
       buttons.push(
         <TouchableOpacity
           key={`${work.id}-${status}`}
           style={[
-            work.status.kind === status ? selectedStyle : unselectedStyle,
+            work.status.kind === status
+              ? styles.selectedSegment
+              : styles.unSelectedSegment,
             { flex: 1 }
           ]}
           onPress={() => {
