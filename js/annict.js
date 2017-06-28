@@ -5,6 +5,15 @@ import _ from 'lodash';
 import config from '../config';
 const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY } = config;
 
+const STATUS_TABLE = {
+  wanna_watch: '見たい',
+  watching: '見てる',
+  watched: '見た',
+  on_hold: '中断',
+  stop_watching: '中止',
+  no_select: '未指定'
+};
+
 // **sample**
 // let annict = new Annict({ accessToken: 'XXXXXXX' });
 // annict
@@ -22,6 +31,16 @@ export default class Annict {
     this.state = {
       accessToken: props.accessToken
     };
+    this.STATUS_TABLE = STATUS_TABLE;
+  }
+
+  getStatusText(status) {
+    const message = STATUS_TABLE[status];
+    if (!message) {
+      return STATUS_TABLE['no_select'];
+    }
+
+    return message;
   }
 
   markWatched({
@@ -151,8 +170,8 @@ export default class Annict {
         Promise.reject(err);
       });
   }
-  changeWorkStatus({ workId, isWatch }) {
-    const kind = isWatch ? 'watching' : 'no_select';
+  changeWorkStatus({ workId, status }) {
+    const kind = status || 'no_select';
     let body = {
       work_id: workId,
       kind: kind

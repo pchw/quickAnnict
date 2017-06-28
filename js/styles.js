@@ -56,7 +56,6 @@ export default StyleSheet.create({
     padding: 10
   },
   programRow: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
     margin: 10
   },
@@ -82,6 +81,9 @@ export default StyleSheet.create({
     marginRight: 5,
     marginLeft: 5
   },
+  smallText: {
+    fontSize: 10
+  },
   regularText: {
     fontSize: 12
   },
@@ -92,6 +94,16 @@ export default StyleSheet.create({
     color: NAMARI
   },
   regularButton: {
+    padding: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: ANNICT_COLOR,
+    backgroundColor: 'white',
+    alignItems: 'center'
+  },
+  regularButtonFilled: {
     padding: 15,
     paddingTop: 10,
     paddingBottom: 10,

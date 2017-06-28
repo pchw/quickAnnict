@@ -113,11 +113,11 @@ export default class ProgramScreen extends React.Component {
       });
   }
 
-  changeStatus({ rowId, workId, isWatch }) {
+  changeStatus({ rowId, workId, status }) {
     rowId = parseInt(rowId, 10);
-    const kind = isWatch ? 'watching' : 'no_select';
+    const kind = status || 'no_select';
     this.annict
-      .changeWorkStatus({ workId, isWatch })
+      .changeWorkStatus({ workId, status })
       .then(response => {
         // 一覧をコピー
         let programs = this.state.programs.slice();
@@ -285,38 +285,50 @@ export default class ProgramScreen extends React.Component {
       );
     }
 
-    let button;
-    if (work.status.kind === 'watching') {
-      button = (
+    let buttons = [];
+    const selectedStyle = {
+      padding: 5,
+      paddingTop: 10,
+      paddingBottom: 10,
+      borderBottomWidth: 1,
+      borderColor: ANNICT_COLOR,
+      backgroundColor: 'white',
+      alignItems: 'center'
+    };
+    const unselectedStyle = {
+      padding: 5,
+      paddingTop: 10,
+      paddingBottom: 10,
+      alignItems: 'center'
+    };
+    const STATUS_TABLE = this.annict.STATUS_TABLE;
+    Object.keys(STATUS_TABLE).forEach(status => {
+      buttons.push(
         <TouchableOpacity
-          style={[styles.regularButton, { backgroundColor: GUNJYO, flex: 1 }]}
+          key={`${work.id}-${status}`}
+          style={[
+            work.status.kind === status ? selectedStyle : unselectedStyle,
+            { flex: 1 }
+          ]}
           onPress={() => {
             this.changeStatus.bind(this)({
               rowId: rowId,
               workId: work.id,
-              isWatch: false
+              status: status
             });
           }}
         >
-          <Text style={styles.regularText}>視聴解除</Text>
+          <Text
+            style={[
+              work.status.kind === status ? { color: 'black' } : styles.subText,
+              styles.smallText
+            ]}
+          >
+            {STATUS_TABLE[status]}
+          </Text>
         </TouchableOpacity>
       );
-    } else {
-      button = (
-        <TouchableOpacity
-          style={[styles.regularButton, { flex: 1 }]}
-          onPress={() => {
-            this.changeStatus.bind(this)({
-              rowId: rowId,
-              workId: work.id,
-              isWatch: true
-            });
-          }}
-        >
-          <Text style={styles.regularText}>視聴登録</Text>
-        </TouchableOpacity>
-      );
-    }
+    });
 
     let officialButton;
     if (work.official_site_url) {
@@ -327,7 +339,9 @@ export default class ProgramScreen extends React.Component {
             WebBrowser.openBrowserAsync(work.official_site_url);
           }}
         >
-          <Text style={styles.regularText}>公式サイト</Text>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+            <Text style={styles.regularText}>公式サイト</Text>
+          </View>
         </TouchableOpacity>
       );
     } else {
@@ -339,7 +353,7 @@ export default class ProgramScreen extends React.Component {
         <View style={styles.programRow}>
           <View style={{ flex: 1, flexDirection: 'row' }}>
             {image}
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 2 }}>
               <TouchableOpacity
                 style={styles.programRowBody}
                 onPress={() => {
@@ -351,15 +365,18 @@ export default class ProgramScreen extends React.Component {
                   Watchers: {work.watchers_count}
                 </Text>
               </TouchableOpacity>
-              <View style={{ flexDirection: 'row' }}>
-                <View style={styles.programRowAction}>
-                  {officialButton}
-                </View>
-                <View style={styles.programRowAction}>
-                  {button}
-                </View>
-              </View>
             </View>
+            <View style={styles.programRowAction}>
+              {officialButton}
+            </View>
+          </View>
+          <View>
+            <Text style={[styles.subText, styles.smallText, { marginTop: 10 }]}>
+              視聴状態
+            </Text>
+          </View>
+          <View style={{ flexDirection: 'row' }}>
+            {buttons}
           </View>
         </View>
 
