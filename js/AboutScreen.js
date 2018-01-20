@@ -23,6 +23,11 @@ import Annict from './annict';
 
 const releases = [
   {
+    id: '2018-01-20-1',
+    date: '2018/01/20',
+    body: '内部ライブラリをアップデートしました．使い勝手を向上しました．'
+  },
+  {
     id: '2017-06-28-1',
     date: '2017/06/28',
     body: '視聴状態を見てる以外も選べるようになりました'
@@ -47,8 +52,9 @@ const releases = [
 export default class AboutScreen extends React.Component {
   static navigationOptions = {
     tabBarLabel: '情報',
-    tabBarIcon: ({ tintColor }) =>
+    tabBarIcon: ({ tintColor }) => (
       <Ionicons name="ios-information-circle" size={30} color={tintColor} />
+    )
   };
 
   constructor(props) {
