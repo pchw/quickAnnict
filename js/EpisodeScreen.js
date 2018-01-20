@@ -56,6 +56,7 @@ export default class EpisodeScreen extends React.Component {
     this.state = {
       page: 1,
       programs: [],
+      progressPrograms: [],
       isLoading: false,
       isEnd: false,
       workId: '',
@@ -138,6 +139,10 @@ export default class EpisodeScreen extends React.Component {
   }) {
     rowId = parseInt(rowId, 10);
 
+    this.setState({
+      progressPrograms: [...this.state.progressPrograms, rowId]
+    });
+
     this.annict
       .markWatched({
         episodeId,
@@ -153,6 +158,7 @@ export default class EpisodeScreen extends React.Component {
 
         this.setState({
           programs: programs,
+          progressPrograms: _.filter(this.state.progressPrograms, rowId),
           isLoading: false,
           errorMessage: ''
         });
@@ -223,7 +229,8 @@ export default class EpisodeScreen extends React.Component {
     this.setState({
       page: 1,
       workId: workId,
-      programs: []
+      programs: [],
+      progressPrograms: []
     });
     this.fetchProgram({
       page: 1,
@@ -239,7 +246,8 @@ export default class EpisodeScreen extends React.Component {
     this.setState({
       page: 1,
       isEnd: false,
-      programs: []
+      programs: [],
+      progressPrograms: []
     });
     this.fetchProgram({
       page: 1,
@@ -281,33 +289,39 @@ export default class EpisodeScreen extends React.Component {
             </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.episodeRowAction}
-          onPress={() => {
-            this.markWatched.bind(this)({
-              episodeId: episode.id,
-              rowId: rowId
-            });
-            this.setState({
-              modalEpisodeId: episode.id,
-              modalRowId: rowId,
-              modalTitle: work.title,
-              modalEpisodeTitle: `${episode.number_text} ${episode.title || ''}`
-            });
-            this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_COMPLETE);
-          }}
-          onLongPress={() => {
-            this.setState({
-              modalEpisodeId: episode.id,
-              modalRowId: rowId,
-              modalTitle: work.title,
-              modalEpisodeTitle: `${episode.number_text} ${episode.title || ''}`
-            });
-            this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_DETAIL);
-          }}
-        >
-          <Ionicons name="ios-create-outline" size={30} />
-        </TouchableOpacity>
+        {this.state.progressPrograms.indexOf(rowId) < 0 ? (
+          <TouchableOpacity
+            style={styles.episodeRowAction}
+            onPress={() => {
+              this.markWatched.bind(this)({
+                episodeId: episode.id,
+                rowId: rowId
+              });
+              this.setState({
+                modalEpisodeId: episode.id,
+                modalRowId: rowId,
+                modalTitle: work.title,
+                modalEpisodeTitle: `${episode.number_text} ${episode.title ||
+                  ''}`
+              });
+              this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_COMPLETE);
+            }}
+            onLongPress={() => {
+              this.setState({
+                modalEpisodeId: episode.id,
+                modalRowId: rowId,
+                modalTitle: work.title,
+                modalEpisodeTitle: `${episode.number_text} ${episode.title ||
+                  ''}`
+              });
+              this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_DETAIL);
+            }}
+          >
+            <Ionicons name="ios-create-outline" size={30} />
+          </TouchableOpacity>
+        ) : (
+          <ActivityIndicator animating={true} color={ANNICT_COLOR} />
+        )}
       </View>
     );
   }
