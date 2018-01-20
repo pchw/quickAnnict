@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "quickAnnict",
+    "description": "No description",
+    "slug": "quickannict",
+    "privacy": "unlisted",
+    "sdkVersion": "24.0.0",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "primaryColor": "#cccccc",
+    "icon":
+      "https://cloud.githubusercontent.com/assets/1183484/26401156/77228340-40bf-11e7-9275-f3b85359d969.png",
+    "splash": {
+      "backgroundColor": "#FFFFFB",
+      "image": "./assets/icon.png"
+    },
+    "packagerOpts": {
+      "assetExts": ["ttf"]
+    },
+    "ios": {
+      "isRemoteJSEnabled": true,
+      "bundleIdentifier": "com.phosphoricholic.quickAnnict",
+      "buildNumber": "1"
+    },
+    "scheme": "qani"
+  }
+}
