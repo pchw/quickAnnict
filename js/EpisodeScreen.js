@@ -44,8 +44,9 @@ export default class EpisodeScreen extends React.Component {
       backgroundColor: ANNICT_COLOR
     },
     tabBarLabel: '視聴記録',
-    tabBarIcon: ({ tintColor }) =>
+    tabBarIcon: ({ tintColor }) => (
       <Ionicons name="ios-eye" size={30} color={tintColor} />
+    )
   };
 
   constructor(props) {
@@ -55,6 +56,7 @@ export default class EpisodeScreen extends React.Component {
     this.state = {
       page: 1,
       programs: [],
+      progressPrograms: [],
       isLoading: false,
       isEnd: false,
       workId: '',
@@ -137,6 +139,10 @@ export default class EpisodeScreen extends React.Component {
   }) {
     rowId = parseInt(rowId, 10);
 
+    this.setState({
+      progressPrograms: [...this.state.progressPrograms, rowId]
+    });
+
     this.annict
       .markWatched({
         episodeId,
@@ -152,6 +158,7 @@ export default class EpisodeScreen extends React.Component {
 
         this.setState({
           programs: programs,
+          progressPrograms: _.filter(this.state.progressPrograms, rowId),
           isLoading: false,
           errorMessage: ''
         });
@@ -160,7 +167,8 @@ export default class EpisodeScreen extends React.Component {
       })
       .catch(error => {
         this.setState({
-          errorMessage: 'Annictとの通信に失敗しました。しばらく時間を置いてから再度記録ボタンを押して下さい。'
+          errorMessage:
+            'Annictとの通信に失敗しました。しばらく時間を置いてから再度記録ボタンを押して下さい。'
         });
         console.error(error);
       });
@@ -200,7 +208,8 @@ export default class EpisodeScreen extends React.Component {
       })
       .catch(err => {
         this.setState({
-          errorMessage: 'Annictとの通信に失敗しました。しばらく時間を置いてから再度読み込み直して下さい。',
+          errorMessage:
+            'Annictとの通信に失敗しました。しばらく時間を置いてから再度読み込み直して下さい。',
           isLoading: false
         });
         console.error(err);
@@ -219,7 +228,9 @@ export default class EpisodeScreen extends React.Component {
   filterWorks(workId) {
     this.setState({
       page: 1,
-      workId: workId
+      workId: workId,
+      programs: [],
+      progressPrograms: []
     });
     this.fetchProgram({
       page: 1,
@@ -234,7 +245,9 @@ export default class EpisodeScreen extends React.Component {
   reload() {
     this.setState({
       page: 1,
-      isEnd: false
+      isEnd: false,
+      programs: [],
+      progressPrograms: []
     });
     this.fetchProgram({
       page: 1,
@@ -255,9 +268,10 @@ export default class EpisodeScreen extends React.Component {
     const rowId = info.index;
     const work = program.work;
     const episode = program.episode;
-    const image = work.images && work.images.facebook.og_image_url
-      ? { uri: work.images.facebook.og_image_url }
-      : { uri: work.images.recommended_url };
+    const image =
+      work.images && work.images.facebook.og_image_url
+        ? { uri: work.images.facebook.og_image_url }
+        : { uri: work.images.recommended_url };
 
     return (
       <View style={styles.episodeRow} key={`episode-${episode.id}`}>
@@ -275,33 +289,39 @@ export default class EpisodeScreen extends React.Component {
             </Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.episodeRowAction}
-          onPress={() => {
-            this.markWatched.bind(this)({
-              episodeId: episode.id,
-              rowId: rowId
-            });
-            this.setState({
-              modalEpisodeId: episode.id,
-              modalRowId: rowId,
-              modalTitle: work.title,
-              modalEpisodeTitle: `${episode.number_text} ${episode.title || ''}`
-            });
-            this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_COMPLETE);
-          }}
-          onLongPress={() => {
-            this.setState({
-              modalEpisodeId: episode.id,
-              modalRowId: rowId,
-              modalTitle: work.title,
-              modalEpisodeTitle: `${episode.number_text} ${episode.title || ''}`
-            });
-            this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_DETAIL);
-          }}
-        >
-          <Ionicons name="ios-create-outline" size={30} />
-        </TouchableOpacity>
+        {this.state.progressPrograms.indexOf(rowId) < 0 ? (
+          <TouchableOpacity
+            style={styles.episodeRowAction}
+            onPress={() => {
+              this.markWatched.bind(this)({
+                episodeId: episode.id,
+                rowId: rowId
+              });
+              this.setState({
+                modalEpisodeId: episode.id,
+                modalRowId: rowId,
+                modalTitle: work.title,
+                modalEpisodeTitle: `${episode.number_text} ${episode.title ||
+                  ''}`
+              });
+              this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_COMPLETE);
+            }}
+            onLongPress={() => {
+              this.setState({
+                modalEpisodeId: episode.id,
+                modalRowId: rowId,
+                modalTitle: work.title,
+                modalEpisodeTitle: `${episode.number_text} ${episode.title ||
+                  ''}`
+              });
+              this.setPopupVisible.bind(this)(true, MODAL_TYPE.RECORD_DETAIL);
+            }}
+          >
+            <Ionicons name="ios-create-outline" size={30} />
+          </TouchableOpacity>
+        ) : (
+          <ActivityIndicator animating={true} color={ANNICT_COLOR} />
+        )}
       </View>
     );
   }
@@ -332,6 +352,7 @@ export default class EpisodeScreen extends React.Component {
       if (this.state.workId) {
         views.push(
           <Button
+            key="resetWorkFilterButton"
             onPress={this.resetFilter.bind(this)}
             title="絞込を解除する"
             color={ANNICT_COLOR}
@@ -346,11 +367,7 @@ export default class EpisodeScreen extends React.Component {
       }
     }
 
-    return (
-      <View>
-        {views}
-      </View>
-    );
+    return <View>{views}</View>;
   }
 
   renderFooter() {

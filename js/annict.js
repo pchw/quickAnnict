@@ -81,7 +81,9 @@ export default class Annict {
       filter_unwatched: true,
       sort_started_at: 'desc',
       page: page,
-      filter_started_at_lt: moment().utc().format('YYYY/MM/DD HH:mm')
+      filter_started_at_lt: moment()
+        .utc()
+        .format('YYYY/MM/DD HH:mm')
     };
 
     if (workId) {
@@ -112,6 +114,7 @@ export default class Annict {
 
     if (season) {
       params.filter_season = season;
+      delete params.sort_season;
     }
 
     return new Promise((resolve, reject) => {

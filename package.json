@@ -4,13 +4,14 @@
   "private": true,
   "dependencies": {
     "axios": "^0.16.0",
-    "expo": "^18.0.1",
+    "expo": "^24.0.0",
     "lodash": "^4.17.4",
     "moment": "^2.18.1",
     "query-string": "^4.3.4",
-    "react": "16.0.0-alpha.12",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-18.0.1.tar.gz",
-    "react-navigation": "^1.0.0-beta.8"
+    "react": "16.0.0",
+    "react-native":
+      "https://github.com/expo/react-native/archive/sdk-24.0.0.tar.gz",
+    "react-navigation": "^1.0.0-beta.21"
   },
   "main": "main.js"
 }

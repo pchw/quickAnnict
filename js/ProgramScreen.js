@@ -34,7 +34,7 @@ import { Constants, WebBrowser } from 'expo';
 
 import Annict from './annict';
 
-const THIS_SEASON = '2017-summer';
+const THIS_SEASON = '2018-winter';
 
 export default class ProgramScreen extends React.Component {
   static navigationOptions = {
@@ -58,7 +58,7 @@ export default class ProgramScreen extends React.Component {
       isLoading: false,
       isEnd: false,
       title: '',
-      season: ''
+      season: THIS_SEASON
     };
   }
 
@@ -80,7 +80,8 @@ export default class ProgramScreen extends React.Component {
         if (token) {
           this.annict = new Annict({ accessToken: token });
           this.fetchProgram({
-            page: this.state.page
+            page: this.state.page,
+            season: this.state.season
           });
         }
       })
@@ -200,7 +201,8 @@ export default class ProgramScreen extends React.Component {
       // season絞込を解除
       this.setState({
         page: 1,
-        season: ''
+        season: '',
+        programs: []
       });
       this.fetchProgram({
         page: 1,
@@ -211,7 +213,8 @@ export default class ProgramScreen extends React.Component {
       // season絞込を設定
       this.setState({
         page: 1,
-        season: THIS_SEASON
+        season: THIS_SEASON,
+        programs: []
       });
 
       this.fetchProgram({
@@ -279,9 +282,15 @@ export default class ProgramScreen extends React.Component {
       );
     } else {
       image = (
-        <Image style={[styles.programRowThumbnail, styles.programRowNoImage]}>
-          <Text style={{ textAlign: 'center' }}>NO IMAGE</Text>
-        </Image>
+        <Text
+          style={[
+            { textAlign: 'center' },
+            styles.programRowThumbnail,
+            styles.programRowNoImage
+          ]}
+        >
+          NO IMAGE
+        </Text>
       );
     }
 
@@ -349,24 +358,22 @@ export default class ProgramScreen extends React.Component {
               >
                 <Text>{work.title}</Text>
                 <Text style={styles.subText}>
+                  Season: {work.season_name_text}
+                </Text>
+                <Text style={styles.subText}>
                   Watchers: {work.watchers_count}
                 </Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.programRowAction}>
-              {officialButton}
-            </View>
+            <View style={styles.programRowAction}>{officialButton}</View>
           </View>
           <View>
             <Text style={[styles.subText, styles.smallText, { marginTop: 10 }]}>
               視聴状態
             </Text>
           </View>
-          <View style={{ flexDirection: 'row' }}>
-            {buttons}
-          </View>
+          <View style={{ flexDirection: 'row' }}>{buttons}</View>
         </View>
-
       </View>
     );
   }
@@ -386,6 +393,7 @@ export default class ProgramScreen extends React.Component {
       if (this.state.title) {
         views.push(
           <Button
+            key="resetFilterButton"
             onPress={this.resetFilter.bind(this)}
             title="絞込を解除する"
             color={ANNICT_COLOR}
@@ -400,11 +408,7 @@ export default class ProgramScreen extends React.Component {
       }
     }
 
-    return (
-      <View>
-        {views}
-      </View>
-    );
+    return <View>{views}</View>;
   }
 
   renderFooter() {
@@ -428,7 +432,9 @@ export default class ProgramScreen extends React.Component {
       return (
         <View>
           <View style={{ padding: 22 }}>
-            <Text>この画面ではアニメ一覧から「視聴しているアニメ」「視聴していないアニメ」を管理する事ができます</Text>
+            <Text>
+              この画面ではアニメ一覧から「視聴しているアニメ」「視聴していないアニメ」を管理する事ができます
+            </Text>
             <Button
               onPress={this.reload.bind(this)}
               title="一覧を表示する"
@@ -446,7 +452,7 @@ export default class ProgramScreen extends React.Component {
           key={uuid()}
           style={{ backgroundColor: ANNICT_COLOR, padding: 5 }}
         >
-          <Text>2017夏アニメで絞込中</Text>
+          <Text>2018冬アニメで絞込中</Text>
         </View>
       );
     }
@@ -468,7 +474,7 @@ export default class ProgramScreen extends React.Component {
                 style={{ alignSelf: 'flex-end' }}
                 onPress={this.filterSeason.bind(this)}
               >
-                <Text>{this.state.season ? '解除' : '2017夏アニメ'}</Text>
+                <Text>{this.state.season ? '解除' : '2018冬アニメ'}</Text>
               </TouchableOpacity>
             </View>
           </View>
