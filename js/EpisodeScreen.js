@@ -283,8 +283,10 @@ export default class EpisodeScreen extends React.Component {
         >
           <Image style={styles.episodeRowThumbnail} source={image} />
           <View style={styles.episodeRowBody}>
-            <Text style={styles.episodeRowText}>{work.title}</Text>
             <Text style={[styles.episodeRowText, styles.boldText]}>
+              {work.title}
+            </Text>
+            <Text style={[styles.bigText]}>
               {episode.number_text} {episode.title}
             </Text>
           </View>
