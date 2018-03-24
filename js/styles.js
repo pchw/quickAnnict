@@ -49,6 +49,9 @@ export default StyleSheet.create({
   episodeRowText: {
     fontSize: 12
   },
+  episodeRowMainText: {
+    fontSize: 18
+  },
   boldText: {
     fontWeight: 'bold'
   },
@@ -88,7 +91,7 @@ export default StyleSheet.create({
     fontSize: 12
   },
   bigText: {
-    fontSize: 15
+    fontSize: 18
   },
   subText: {
     color: NAMARI

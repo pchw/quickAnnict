@@ -356,7 +356,7 @@ export default class ProgramScreen extends React.Component {
                   this.navigateEpisode(work.id);
                 }}
               >
-                <Text>{work.title}</Text>
+                <Text style={styles.bigText}>{work.title}</Text>
                 <Text style={styles.subText}>
                   Season: {work.season_name_text}
                 </Text>
