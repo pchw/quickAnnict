@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {
   View,
   Text,
@@ -8,59 +8,70 @@ import {
   AsyncStorage,
   TouchableOpacity,
   FlatList
-} from 'react-native';
-import { NavigationActions } from 'react-navigation';
-import { Constants, Util } from 'expo';
-import { Ionicons, Octicons, MaterialIcons } from '@expo/vector-icons';
+} from "react-native";
+import { NavigationActions } from "react-navigation";
+import { Constants, Util } from "expo";
+import { Ionicons, Octicons, MaterialIcons } from "@expo/vector-icons";
 
-import _ from 'lodash';
+import _ from "lodash";
 
-import { ANNICT_COLOR } from './colors';
-import styles from './styles';
-import config from '../config';
+import { ANNICT_COLOR } from "./colors";
+import styles from "./styles";
+import config from "../config";
 const { OAUTH_ACCESS_TOKEN_KEY, ACCESS_TOKEN } = config;
-import Annict from './annict';
+import Annict from "./annict";
 
 const releases = [
   {
-    id: '2018-03-02-1',
-    date: '2018/03/02',
-    body: 'ログインできない問題を修正しました．'
-  },{
-    id: '2018-02-18-1',
-    date: '2018/02/18',
-    body: 'フォントサイズの調整を行いました．'
+    id: "2018-07-01-1",
+    date: "2018/07/01",
+    body: "アニメ一覧のページを2018年夏アニメ絞込で開くようにしました．"
   },
   {
-    id: '2018-01-20-1',
-    date: '2018/01/20',
-    body: '内部ライブラリをアップデートしました．使い勝手を向上しました．'
+    id: "2018-03-24-1",
+    date: "2018/03/24",
+    body: "アニメ一覧のページを2018年春アニメ絞込で開くようにしました．"
   },
   {
-    id: '2017-06-28-1',
-    date: '2017/06/28',
-    body: '視聴状態を見てる以外も選べるようになりました'
+    id: "2018-03-02-1",
+    date: "2018/03/02",
+    body: "ログインできない問題を修正しました．"
   },
   {
-    id: '2017-06-26-1',
-    date: '2017/06/26',
-    body: '夏アニメで絞りこめるようになりました'
+    id: "2018-02-18-1",
+    date: "2018/02/18",
+    body: "フォントサイズの調整を行いました．"
   },
   {
-    id: '2017-06-26-2',
-    date: '2017/06/26',
-    body: '内部ライブラリをアップデートしました'
+    id: "2018-01-20-1",
+    date: "2018/01/20",
+    body: "内部ライブラリをアップデートしました．使い勝手を向上しました．"
   },
   {
-    id: '2017-06-20-1',
-    date: '2017/06/20',
-    body: 'ログアウトボタンを追加しました'
+    id: "2017-06-28-1",
+    date: "2017/06/28",
+    body: "視聴状態を見てる以外も選べるようになりました"
+  },
+  {
+    id: "2017-06-26-1",
+    date: "2017/06/26",
+    body: "夏アニメで絞りこめるようになりました"
+  },
+  {
+    id: "2017-06-26-2",
+    date: "2017/06/26",
+    body: "内部ライブラリをアップデートしました"
+  },
+  {
+    id: "2017-06-20-1",
+    date: "2017/06/20",
+    body: "ログアウトボタンを追加しました"
   }
 ];
 
 export default class AboutScreen extends React.Component {
   static navigationOptions = {
-    tabBarLabel: '情報',
+    tabBarLabel: "情報",
     tabBarIcon: ({ tintColor }) => (
       <Ionicons name="ios-information-circle" size={30} color={tintColor} />
     )
@@ -70,11 +81,11 @@ export default class AboutScreen extends React.Component {
     super(props);
 
     this.state = {
-      name: '',
-      username: '',
-      description: '',
-      avatarUrl: '',
-      backgroundImageUrl: '',
+      name: "",
+      username: "",
+      description: "",
+      avatarUrl: "",
+      backgroundImageUrl: "",
       recordsCount: 0
     };
     this.annict = null;
@@ -87,7 +98,7 @@ export default class AboutScreen extends React.Component {
           index: 0,
           actions: [
             NavigationActions.navigate({
-              routeName: 'Episode'
+              routeName: "Episode"
             })
           ]
         })
@@ -101,7 +112,7 @@ export default class AboutScreen extends React.Component {
         if (token || ACCESS_TOKEN) {
           return resolve(token || ACCESS_TOKEN);
         } else {
-          return reject(new Error('no token'));
+          return reject(new Error("no token"));
         }
       });
     });
@@ -142,19 +153,19 @@ export default class AboutScreen extends React.Component {
 
   render() {
     return (
-      <View style={{ flex: 1, alignItems: 'stretch' }}>
+      <View style={{ flex: 1, alignItems: "stretch" }}>
         <View style={styles.header}>
-          <Text style={[styles.headerText, { textAlign: 'center' }]}>
+          <Text style={[styles.headerText, { textAlign: "center" }]}>
             quickAnnict
           </Text>
         </View>
         <View style={{ margin: 20 }}>
           <Text style={[styles.subText, { marginBottom: 5 }]}>App info</Text>
-          <View style={{ marginBottom: 20, flexDirection: 'row' }}>
+          <View style={{ marginBottom: 20, flexDirection: "row" }}>
             <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Octicons name="versions" size={50} />
-                <View style={{ alignItems: 'center', marginLeft: 20 }}>
+                <View style={{ alignItems: "center", marginLeft: 20 }}>
                   <Text style={[styles.bigText, styles.boldText]}>
                     {Constants.manifest.version}
                   </Text>
@@ -164,9 +175,9 @@ export default class AboutScreen extends React.Component {
             </View>
 
             <View style={{ flex: 1 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <MaterialIcons name="update" size={50} />
-                <View style={{ alignItems: 'center', marginLeft: 20 }}>
+                <View style={{ alignItems: "center", marginLeft: 20 }}>
                   <Text style={[styles.bigText, styles.boldText]}>
                     2017/06/28
                   </Text>
@@ -176,34 +187,34 @@ export default class AboutScreen extends React.Component {
             </View>
           </View>
           <Text style={[styles.subText, { marginBottom: 5 }]}>User info</Text>
-          <View style={{ flexDirection: 'row', marginBottom: 20 }}>
+          <View style={{ flexDirection: "row", marginBottom: 20 }}>
             <Image
               source={{ uri: this.state.avatarUrl }}
               style={{ width: 50, height: 50, borderRadius: 25 }}
             />
             <View
               style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
+                flexDirection: "row",
+                justifyContent: "space-between",
                 flex: 1,
                 marginLeft: 20
               }}
             >
-              <View style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ flex: 1, alignItems: "center" }}>
                 <Text style={[styles.bigText, styles.boldText]}>
                   {this.state.recordsCount}
                 </Text>
                 <Text style={styles.subText}>Records</Text>
               </View>
-              <View style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ flex: 1, alignItems: "center" }}>
                 <Text style={[styles.bigText, styles.boldText]}>-</Text>
                 <Text style={styles.subText}>Watching</Text>
               </View>
-              <View style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ flex: 1, alignItems: "center" }}>
                 <Text style={[styles.bigText, styles.boldText]}>-</Text>
                 <Text style={styles.subText}>Following</Text>
               </View>
-              <View style={{ flex: 1, alignItems: 'center' }}>
+              <View style={{ flex: 1, alignItems: "center" }}>
                 <Text style={[styles.bigText, styles.boldText]}>-</Text>
                 <Text style={styles.subText}>Followers</Text>
               </View>

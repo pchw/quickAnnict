@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {
   InteractionManager,
   Modal,
@@ -16,30 +16,31 @@ import {
   TextInput,
   RefreshControl,
   ActivityIndicator
-} from 'react-native';
-import { NavigationActions } from 'react-navigation';
-import uuid from './guid';
+} from "react-native";
+import { NavigationActions } from "react-navigation";
+import uuid from "./guid";
 
-import axios from 'axios';
-import _ from 'lodash';
-import moment from 'moment';
-import styles from './styles';
+import axios from "axios";
+import _ from "lodash";
+import moment from "moment";
+import styles from "./styles";
 
-import config from '../config';
+import config from "../config";
 const { ANNICT_API_BASE_URL, OAUTH_ACCESS_TOKEN_KEY, ACCESS_TOKEN } = config;
-import { ANNICT_COLOR, GUNJYO } from './colors';
+import { ANNICT_COLOR, GUNJYO } from "./colors";
 
-import { Ionicons } from '@expo/vector-icons';
-import { Constants, WebBrowser } from 'expo';
+import { Ionicons } from "@expo/vector-icons";
+import { Constants, WebBrowser } from "expo";
 
-import Annict from './annict';
+import Annict from "./annict";
 
-const THIS_SEASON = '2018-winter';
+const THIS_SEASON = "2018-summer";
+const THIS_SEASON_TEXT = "2018夏アニメ";
 
 export default class ProgramScreen extends React.Component {
   static navigationOptions = {
-    title: 'アニメ一覧',
-    tabBarLabel: 'アニメ一覧',
+    title: "アニメ一覧",
+    tabBarLabel: "アニメ一覧",
     tabBarIcon: ({ tintColor }) => {
       return <Ionicons name="ios-list" size={30} color={tintColor} />;
     },
@@ -57,7 +58,7 @@ export default class ProgramScreen extends React.Component {
       programs: [],
       isLoading: false,
       isEnd: false,
-      title: '',
+      title: "",
       season: THIS_SEASON
     };
   }
@@ -68,7 +69,7 @@ export default class ProgramScreen extends React.Component {
         if (token || ACCESS_TOKEN) {
           return resolve(token || ACCESS_TOKEN);
         } else {
-          return reject(new Error('no token'));
+          return reject(new Error("no token"));
         }
       });
     });
@@ -93,13 +94,13 @@ export default class ProgramScreen extends React.Component {
   checkStatus({ workIds }) {
     return axios({
       url: `${ANNICT_API_BASE_URL}/v1/me/works`,
-      method: 'GET',
+      method: "GET",
       headers: {
         Authorization: `Bearer ${this.state.accessToken}`,
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json"
       },
       params: {
-        filter_ids: workIds.join(',')
+        filter_ids: workIds.join(",")
       }
     })
       .then(response => {
@@ -116,7 +117,7 @@ export default class ProgramScreen extends React.Component {
 
   changeStatus({ rowId, workId, status }) {
     rowId = parseInt(rowId, 10);
-    const kind = status || 'no_select';
+    const kind = status || "no_select";
     this.annict
       .changeWorkStatus({ workId, status })
       .then(response => {
@@ -194,14 +195,14 @@ export default class ProgramScreen extends React.Component {
     });
   }
   resetFilter() {
-    this.filterWorks('');
+    this.filterWorks("");
   }
   filterSeason() {
     if (this.state.season) {
       // season絞込を解除
       this.setState({
         page: 1,
-        season: '',
+        season: "",
         programs: []
       });
       this.fetchProgram({
@@ -252,7 +253,7 @@ export default class ProgramScreen extends React.Component {
         index: 0,
         actions: [
           NavigationActions.navigate({
-            routeName: 'Episode',
+            routeName: "Episode",
             params: {
               workId: workId
             }
@@ -284,7 +285,7 @@ export default class ProgramScreen extends React.Component {
       image = (
         <Text
           style={[
-            { textAlign: 'center' },
+            { textAlign: "center" },
             styles.programRowThumbnail,
             styles.programRowNoImage
           ]}
@@ -316,7 +317,7 @@ export default class ProgramScreen extends React.Component {
         >
           <Text
             style={[
-              work.status.kind === status ? { color: 'black' } : styles.subText,
+              work.status.kind === status ? { color: "black" } : styles.subText,
               styles.smallText
             ]}
           >
@@ -335,7 +336,7 @@ export default class ProgramScreen extends React.Component {
             WebBrowser.openBrowserAsync(work.official_site_url);
           }}
         >
-          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
             <Text style={styles.regularText}>公式サイト</Text>
           </View>
         </TouchableOpacity>
@@ -347,7 +348,7 @@ export default class ProgramScreen extends React.Component {
     return (
       <View key={`program-${work.id}`}>
         <View style={styles.programRow}>
-          <View style={{ flex: 1, flexDirection: 'row' }}>
+          <View style={{ flex: 1, flexDirection: "row" }}>
             {image}
             <View style={{ flex: 2 }}>
               <TouchableOpacity
@@ -372,7 +373,7 @@ export default class ProgramScreen extends React.Component {
               視聴状態
             </Text>
           </View>
-          <View style={{ flexDirection: 'row' }}>{buttons}</View>
+          <View style={{ flexDirection: "row" }}>{buttons}</View>
         </View>
       </View>
     );
@@ -452,7 +453,7 @@ export default class ProgramScreen extends React.Component {
           key={uuid()}
           style={{ backgroundColor: ANNICT_COLOR, padding: 5 }}
         >
-          <Text>2018冬アニメで絞込中</Text>
+          <Text>{THIS_SEASON_TEXT}で絞込中</Text>
         </View>
       );
     }
@@ -460,21 +461,21 @@ export default class ProgramScreen extends React.Component {
     return (
       <View style={styles.screen}>
         <View style={styles.header}>
-          <View style={{ flexDirection: 'row' }}>
+          <View style={{ flexDirection: "row" }}>
             <View style={styles.headerItem}>
               <Text />
             </View>
             <View style={styles.headerItem}>
-              <Text style={[styles.headerText, { textAlign: 'center' }]}>
+              <Text style={[styles.headerText, { textAlign: "center" }]}>
                 quickAnnict
               </Text>
             </View>
             <View style={styles.headerItem}>
               <TouchableOpacity
-                style={{ alignSelf: 'flex-end' }}
+                style={{ alignSelf: "flex-end" }}
                 onPress={this.filterSeason.bind(this)}
               >
-                <Text>{this.state.season ? '解除' : '2018冬アニメ'}</Text>
+                <Text>{this.state.season ? "解除" : "2018冬アニメ"}</Text>
               </TouchableOpacity>
             </View>
           </View>
